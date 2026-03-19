@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ocp-support-web-operator-metrics
+  labels:
+    control-plane: controller-manager
+    app.kubernetes.io/name: ocp-support-web-operator
+spec:
+  selector:
+    control-plane: controller-manager
+  ports:
+    - name: metrics
+      port: 8080
+      targetPort: 8080
+      protocol: TCP

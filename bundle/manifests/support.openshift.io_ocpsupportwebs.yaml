@@ -1,0 +1,152 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: ocpsupportwebs.support.openshift.io
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.1
+spec:
+  group: support.openshift.io
+  names:
+    kind: OCPSupportWeb
+    listKind: OCPSupportWebList
+    plural: ocpsupportwebs
+    singular: ocpsupportweb
+    shortNames:
+      - osw
+  scope: Namespaced
+  versions:
+    - name: v1alpha1
+      served: true
+      storage: true
+      subresources:
+        status: {}
+      additionalPrinterColumns:
+        - name: Phase
+          type: string
+          jsonPath: .status.phase
+        - name: URL
+          type: string
+          jsonPath: .status.routeURL
+        - name: Age
+          type: date
+          jsonPath: .metadata.creationTimestamp
+      schema:
+        openAPIV3Schema:
+          description: OCPSupportWeb deploys the OCP Support Web application to an OpenShift cluster.
+          type: object
+          properties:
+            apiVersion:
+              type: string
+            kind:
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: Desired state of the OCP Support Web deployment.
+              type: object
+              properties:
+                image:
+                  description: >-
+                    Application container image. If not set, the operator uses the
+                    RELATED_IMAGE_APP environment variable from the operator deployment.
+                  type: string
+                oauthProxyImage:
+                  description: >-
+                    OpenShift OAuth proxy sidecar image. Defaults to
+                    registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest.
+                  type: string
+                mustGatherImages:
+                  description: Container images for must-gather operations (disconnected support).
+                  type: object
+                  properties:
+                    standard:
+                      description: >-
+                        Standard OpenShift must-gather image. If not set, oc uses
+                        the image from the cluster release payload.
+                      type: string
+                    cnv:
+                      description: OpenShift Virtualization (CNV) must-gather image.
+                      type: string
+                    odf:
+                      description: OpenShift Data Foundation (ODF) must-gather image.
+                      type: string
+                clusterDomain:
+                  description: >-
+                    Cluster apps domain (e.g. apps.mycluster.example.com).
+                    Auto-detected from Ingress config if not specified.
+                  type: string
+                route:
+                  description: Route configuration.
+                  type: object
+                  properties:
+                    host:
+                      description: Custom hostname for the Route. Auto-generated if not set.
+                      type: string
+                resources:
+                  description: Compute resource requirements for the application container.
+                  type: object
+                  properties:
+                    limits:
+                      additionalProperties:
+                        anyOf:
+                          - type: integer
+                          - type: string
+                        x-kubernetes-int-or-string: true
+                      type: object
+                    requests:
+                      additionalProperties:
+                        anyOf:
+                          - type: integer
+                          - type: string
+                        x-kubernetes-int-or-string: true
+                      type: object
+                oauthProxyResources:
+                  description: Compute resource requirements for the OAuth proxy sidecar.
+                  type: object
+                  properties:
+                    limits:
+                      additionalProperties:
+                        anyOf:
+                          - type: integer
+                          - type: string
+                        x-kubernetes-int-or-string: true
+                      type: object
+                    requests:
+                      additionalProperties:
+                        anyOf:
+                          - type: integer
+                          - type: string
+                        x-kubernetes-int-or-string: true
+                      type: object
+            status:
+              description: Observed state of the OCP Support Web deployment.
+              type: object
+              properties:
+                phase:
+                  description: Current lifecycle phase (Available, Failed).
+                  type: string
+                routeURL:
+                  description: Externally reachable URL for the application.
+                  type: string
+                appImage:
+                  description: Resolved application image in use.
+                  type: string
+                conditions:
+                  description: Conditions represent the latest available observations.
+                  type: array
+                  items:
+                    type: object
+                    required: [type, status, reason, lastTransitionTime]
+                    properties:
+                      type:
+                        type: string
+                      status:
+                        type: string
+                        enum: ["True", "False", "Unknown"]
+                      reason:
+                        type: string
+                      message:
+                        type: string
+                      lastTransitionTime:
+                        type: string
+                        format: date-time

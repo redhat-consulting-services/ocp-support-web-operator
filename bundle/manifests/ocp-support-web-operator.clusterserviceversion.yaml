@@ -1,0 +1,348 @@
+apiVersion: operators.coreos.com/v1alpha1
+kind: ClusterServiceVersion
+metadata:
+  name: ocp-support-web-operator.v1.8.1
+  namespace: placeholder
+  annotations:
+    alm-examples: |-
+      [
+        {
+          "apiVersion": "support.openshift.io/v1alpha1",
+          "kind": "OCPSupportWeb",
+          "metadata": {
+            "name": "ocpsupportweb"
+          },
+          "spec": {
+            "image": "quay.io/kborup/ocp-support-web:v1.8.1",
+            "resources": {
+              "requests": {
+                "cpu": "50m",
+                "memory": "64Mi"
+              },
+              "limits": {
+                "memory": "256Mi"
+              }
+            }
+          }
+        }
+      ]
+    capabilities: Full Lifecycle
+    categories: Developer Tools
+    containerImage: quay.io/kborup/ocp-support-web-operator@sha256:74c737e06083598660287c7e04a740ffbee707760d31ed00183cbd48ca066ef6
+    description: >-
+      OpenShift Support Tools in a web app. Expose the most common tools used
+      for Red Hat support cases through a web application — must-gather, etcd
+      backup, etcd diagnostics, and cluster status — each ready to download and
+      ship from your laptop. This is a community operator and is not supported
+      by Red Hat.
+    repository: https://github.com/redhat-consulting-services/ocp-support-web-operator
+    support: Community
+    operatorframework.io/suggested-namespace: ocp-support-web
+spec:
+  displayName: OCP Support Web
+  description: |
+    ## OCP Support Web Operator
+
+    OpenShift Support Tools in a web app. Expose the most common tools used for
+    Red Hat support cases through a web application — must-gather, etcd backup,
+    etcd diagnostics, and cluster status — each ready to download and ship from
+    your laptop.
+
+    **This is a community operator. It is not supported by Red Hat.**
+
+    ### Features
+
+    - **Must-Gather**: Run default, Virtualization (CNV), ODF, and audit log
+      must-gather collections with a single click. Download archives directly
+      from your browser.
+    - **Etcd Backup**: Create etcd snapshots from master nodes with progress
+      tracking and browser download.
+    - **Etcd Diagnostics**: Analyze etcd database contents — object sizes,
+      counts, namespace breakdowns, creation timelines, and per-namespace
+      resource counts.
+    - **Cluster Status**: View cluster health, control plane operators, node
+      utilization, top consumers (pods and VMs), ODF status, and etcd member
+      health at a glance.
+    - **Data Anonymization**: Optionally obfuscate IPs, MACs, and domain names
+      before sharing diagnostics with support.
+    - **Disconnected Support**: All container image references are configurable
+      for air-gapped and mirror registry environments.
+
+    ### Authentication
+
+    Access is restricted to cluster-admin users via the OpenShift OAuth proxy.
+    Only users who can create namespaces (a cluster-admin privilege) are allowed
+    to log in.
+
+    ### Disconnected / Air-Gapped Environments
+
+    Every container image used by the operator and the application is
+    configurable. In the CR spec you can override:
+
+    - `spec.image` — the application image
+    - `spec.oauthProxyImage` — the OAuth proxy sidecar
+    - `spec.mustGatherImages.cnv` — CNV must-gather image
+    - `spec.mustGatherImages.odf` — ODF must-gather image
+
+    The operator also supports the OLM `RELATED_IMAGE_*` convention for
+    automatic image mirroring via ImageContentSourcePolicy.
+
+    ### Upgrades
+
+    The operator follows OLM best practices:
+
+    - Operator upgrades are managed via the OLM upgrade graph (replaces chain)
+    - Application upgrades happen by updating the CR spec or upgrading the
+      operator version (which updates the default RELATED_IMAGE_APP)
+    - Rolling updates ensure zero downtime during upgrades
+  maturity: alpha
+  version: 1.8.1
+  replaces: ocp-support-web-operator.v1.8.0
+  minKubeVersion: 1.25.0
+
+  keywords:
+    - openshift
+    - support
+    - must-gather
+    - etcd
+    - diagnostics
+    - troubleshooting
+
+  maintainers:
+    - name: Kim Borup
+      email: kim@pfy.dk
+
+  provider:
+    name: Community
+
+  links:
+    - name: Documentation
+      url: https://github.com/redhat-consulting-services/ocp-support-web-operator
+
+  icon:
+    - base64data: PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzNiAzNiIgd2lkdGg9IjM2IiBoZWlnaHQ9IjM2Ij4KICA8IS0tIEhleGFnb24gYmFja2dyb3VuZCAoY29udGFpbmVyL2NsdXN0ZXIgc2hhcGUpIC0tPgogIDxwYXRoIGQ9Ik0xOCAxLjUgTDMyLjUgOS43NSBMMzIuNSAyNi4yNSBMMTggMzQuNSBMMy41IDI2LjI1IEwzLjUgOS43NSBaIiBmaWxsPSIjYzkxOTBiIi8+CiAgPHBhdGggZD0iTTE4IDQgTDMwLjUgMTEgTDMwLjUgMjUgTDE4IDMyIEw1LjUgMjUgTDUuNSAxMSBaIiBmaWxsPSIjZWUzMTI0Ii8+CiAgPCEtLSBXcmVuY2ggaWNvbiAtLT4KICA8ZyB0cmFuc2Zvcm09InRyYW5zbGF0ZSgxOCAxOCkgcm90YXRlKC00NSkiIGZpbGw9IiNmZmYiPgogICAgPCEtLSBoYW5kbGUgLS0+CiAgICA8cmVjdCB4PSItMS44IiB5PSItMyIgd2lkdGg9IjMuNiIgaGVpZ2h0PSIxMyIgcng9IjEuMiIvPgogICAgPCEtLSBvcGVuIGphdyB0b3AgLS0+CiAgICA8cGF0aCBkPSJNLTQuNSAtMyBDLTQuNSAtNy41IC0xIC05IDAgLTkgQzEgLTkgNC41IC03LjUgNC41IC0zIEwxLjggLTMgQzEuOCAtNS41IDEgLTYuNSAwIC02LjUgQy0xIC02LjUgLTEuOCAtNS41IC0xLjggLTMgWiIvPgogICAgPCEtLSBjbG9zZWQgamF3IGJvdHRvbSAtLT4KICAgIDxjaXJjbGUgY3g9IjAiIGN5PSIxMCIgcj0iMy44Ii8+CiAgICA8Y2lyY2xlIGN4PSIwIiBjeT0iMTAiIHI9IjEuNSIgZmlsbD0iI2VlMzEyNCIvPgogIDwvZz4KPC9zdmc+Cg==
+      mediatype: image/svg+xml
+
+  installModes:
+    - type: OwnNamespace
+      supported: true
+    - type: SingleNamespace
+      supported: true
+    - type: MultiNamespace
+      supported: false
+    - type: AllNamespaces
+      supported: false
+
+  install:
+    strategy: deployment
+    spec:
+      clusterPermissions:
+        - serviceAccountName: ocp-support-web-operator
+          rules:
+            - apiGroups: ["support.openshift.io"]
+              resources: ["ocpsupportwebs"]
+              verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+            - apiGroups: ["support.openshift.io"]
+              resources: ["ocpsupportwebs/status"]
+              verbs: ["get", "update", "patch"]
+            - apiGroups: ["support.openshift.io"]
+              resources: ["ocpsupportwebs/finalizers"]
+              verbs: ["update"]
+            - apiGroups: [""]
+              resources: ["serviceaccounts", "services", "secrets"]
+              verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+            - apiGroups: ["apps"]
+              resources: ["deployments"]
+              verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+            - apiGroups: ["rbac.authorization.k8s.io"]
+              resources: ["clusterrolebindings"]
+              verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+            - apiGroups: ["rbac.authorization.k8s.io"]
+              resources: ["clusterroles"]
+              verbs: ["bind"]
+              resourceNames: ["cluster-admin"]
+            - apiGroups: ["route.openshift.io"]
+              resources: ["routes"]
+              verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+            - apiGroups: ["config.openshift.io"]
+              resources: ["ingresses"]
+              verbs: ["get", "list"]
+            - apiGroups: ["monitoring.coreos.com"]
+              resources: ["servicemonitors"]
+              verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+            - apiGroups: ["coordination.k8s.io"]
+              resources: ["leases"]
+              verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+            - apiGroups: [""]
+              resources: ["events"]
+              verbs: ["create", "patch"]
+      deployments:
+        - name: ocp-support-web-operator
+          spec:
+            replicas: 1
+            selector:
+              matchLabels:
+                control-plane: controller-manager
+            template:
+              metadata:
+                labels:
+                  control-plane: controller-manager
+              spec:
+                serviceAccountName: ocp-support-web-operator
+                securityContext:
+                  runAsNonRoot: true
+                containers:
+                  - name: manager
+                    image: quay.io/kborup/ocp-support-web-operator@sha256:74c737e06083598660287c7e04a740ffbee707760d31ed00183cbd48ca066ef6
+                    command: ["/manager"]
+                    env:
+                      - name: WATCH_NAMESPACE
+                        valueFrom:
+                          fieldRef:
+                            fieldPath: metadata.namespace
+                      - name: RELATED_IMAGE_APP
+                        value: quay.io/kborup/ocp-support-web@sha256:31b812f459c1b1a2c9966a37770ecec79072bcc0bfd8b6d69aa836e2bc003ad3
+                      - name: RELATED_IMAGE_OAUTH_PROXY
+                        value: registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest
+                      - name: RELATED_IMAGE_MUST_GATHER_STANDARD
+                        value: registry.redhat.io/openshift4/ose-must-gather-rhel9:latest
+                      - name: RELATED_IMAGE_MUST_GATHER_CNV
+                        value: registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0
+                      - name: RELATED_IMAGE_MUST_GATHER_ODF
+                        value: registry.redhat.io/odf4/ocs-must-gather-rhel9:latest
+                    ports:
+                      - containerPort: 8080
+                        name: metrics
+                      - containerPort: 8081
+                        name: health
+                    livenessProbe:
+                      httpGet:
+                        path: /healthz
+                        port: 8081
+                      initialDelaySeconds: 15
+                      periodSeconds: 20
+                    readinessProbe:
+                      httpGet:
+                        path: /readyz
+                        port: 8081
+                      initialDelaySeconds: 5
+                      periodSeconds: 10
+                    resources:
+                      requests:
+                        cpu: 10m
+                        memory: 64Mi
+                      limits:
+                        memory: 128Mi
+                    securityContext:
+                      allowPrivilegeEscalation: false
+                      capabilities:
+                        drop: ["ALL"]
+                terminationGracePeriodSeconds: 10
+
+  customresourcedefinitions:
+    owned:
+      - name: ocpsupportwebs.support.openshift.io
+        version: v1alpha1
+        kind: OCPSupportWeb
+        displayName: OCP Support Web
+        description: >-
+          Deploys the OCP Support Web application with OAuth authentication,
+          must-gather, etcd tools, and cluster status dashboard.
+        specDescriptors:
+          - path: image
+            displayName: Application Image
+            description: >-
+              Container image for the OCP Support Web application.
+              Leave empty to use the default version bundled with this operator.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Images
+          - path: oauthProxyImage
+            displayName: OAuth Proxy Image
+            description: >-
+              Container image for the OpenShift OAuth proxy sidecar.
+              Leave empty to use the default (registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest).
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Images
+              - urn:alm:descriptor:com.tectonic.ui:advanced
+          - path: mustGatherImages.standard
+            displayName: Standard Must-Gather Image
+            description: >-
+              Standard OpenShift must-gather image. Leave empty to use the cluster
+              release payload's built-in must-gather.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
+              - urn:alm:descriptor:com.tectonic.ui:advanced
+          - path: mustGatherImages.cnv
+            displayName: CNV Must-Gather Image
+            description: Container image for OpenShift Virtualization must-gather.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
+              - urn:alm:descriptor:com.tectonic.ui:advanced
+          - path: mustGatherImages.odf
+            displayName: ODF Must-Gather Image
+            description: Container image for ODF (OpenShift Data Foundation) must-gather.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
+              - urn:alm:descriptor:com.tectonic.ui:advanced
+          - path: clusterDomain
+            displayName: Cluster Domain
+            description: >-
+              Cluster apps domain (e.g. apps.mycluster.example.com).
+              Auto-detected from the cluster Ingress config if not set.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Networking
+          - path: route.host
+            displayName: Route Hostname
+            description: >-
+              Custom hostname for the Route. If not set, OpenShift generates
+              one automatically based on the cluster domain.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Networking
+          - path: resources
+            displayName: App Resources
+            description: Resource requests and limits for the application container.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:resourceRequirements
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Resources
+          - path: oauthProxyResources
+            displayName: OAuth Proxy Resources
+            description: Resource requests and limits for the OAuth proxy sidecar.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:resourceRequirements
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Resources
+              - urn:alm:descriptor:com.tectonic.ui:advanced
+        statusDescriptors:
+          - path: phase
+            displayName: Phase
+            description: Current deployment phase.
+            x-descriptors:
+              - urn:alm:descriptor:io.kubernetes.phase
+          - path: routeURL
+            displayName: Route URL
+            description: External URL for the application.
+            x-descriptors:
+              - urn:alm:descriptor:org.w3:link
+          - path: conditions
+            displayName: Conditions
+            description: Deployment conditions.
+            x-descriptors:
+              - urn:alm:descriptor:io.kubernetes.conditions
+
+  relatedImages:
+    - name: app
+      image: quay.io/kborup/ocp-support-web@sha256:31b812f459c1b1a2c9966a37770ecec79072bcc0bfd8b6d69aa836e2bc003ad3
+    - name: oauth-proxy
+      image: registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest
+    - name: must-gather-standard
+      image: registry.redhat.io/openshift4/ose-must-gather-rhel9:latest
+    - name: must-gather-cnv
+      image: registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0
+    - name: must-gather-odf
+      image: registry.redhat.io/odf4/ocs-must-gather-rhel9:latest

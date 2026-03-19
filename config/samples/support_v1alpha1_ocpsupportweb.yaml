@@ -1,0 +1,11 @@
+apiVersion: support.openshift.io/v1alpha1
+kind: OCPSupportWeb
+metadata:
+  name: ocpsupportweb-sample
+spec:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 256Mi

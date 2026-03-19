@@ -1,0 +1,8 @@
+.git
+.env
+*.md
+testdata/
+hack/
+bin/
+bundle/
+config/samples/

@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: ocp-support-web
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: CatalogSource
+metadata:
+  name: ocp-support-web-operator
+  namespace: openshift-marketplace
+spec:
+  sourceType: grpc
+  image: quay.io/kborup/ocp-support-web-operator-catalog:v1.8.1
+  displayName: OCP Support Web Operator
+  publisher: Community
+  updateStrategy:
+    registryPoll:
+      interval: 5m
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: ocp-support-web
+  namespace: ocp-support-web
+spec:
+  targetNamespaces:
+    - ocp-support-web
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: ocp-support-web-operator
+  namespace: ocp-support-web
+spec:
+  channel: alpha
+  name: ocp-support-web-operator
+  source: ocp-support-web-operator
+  sourceNamespace: openshift-marketplace
+  installPlanApproval: Automatic
+---
+apiVersion: support.openshift.io/v1alpha1
+kind: OCPSupportWeb
+metadata:
+  name: ocpsupportweb
+  namespace: ocp-support-web
+spec:
+  image: quay.io/kborup/ocp-support-web@sha256:31b812f459c1b1a2c9966a37770ecec79072bcc0bfd8b6d69aa836e2bc003ad3
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      memory: 256Mi

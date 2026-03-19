@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: ocp-support-web-operator
+  labels:
+    control-plane: controller-manager
+    app.kubernetes.io/name: ocp-support-web-operator
+spec:
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  endpoints:
+    - port: metrics
+      interval: 30s
+      path: /metrics
