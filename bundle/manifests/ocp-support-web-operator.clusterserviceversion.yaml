@@ -1,7 +1,7 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
-  name: ocp-support-web-operator.v1.8.2
+  name: ocp-support-web-operator.v1.9.0
   namespace: placeholder
   annotations:
     alm-examples: |-
@@ -13,7 +13,7 @@ metadata:
             "name": "ocpsupportweb"
           },
           "spec": {
-            "image": "quay.io/redhat-consulting-services/ocp-support-web:v1.8.2",
+            "image": "quay.io/redhat-consulting-services/ocp-support-web:v1.9.0",
             "resources": {
               "requests": {
                 "cpu": "50m",
@@ -28,7 +28,7 @@ metadata:
       ]
     capabilities: Full Lifecycle
     categories: Developer Tools
-    containerImage: quay.io/redhat-consulting-services/ocp-support-web-operator:v1.8.2
+    containerImage: quay.io/redhat-consulting-services/ocp-support-web-operator:v1.9.0
     description: >-
       OpenShift Support Tools in a web app. Expose the most common tools used
       for Red Hat support cases through a web application — must-gather, etcd
@@ -96,7 +96,7 @@ spec:
       operator version (which updates the default RELATED_IMAGE_APP)
     - Rolling updates ensure zero downtime during upgrades
   maturity: alpha
-  version: 1.8.2
+  version: 1.9.0
   replaces: ocp-support-web-operator.v1.8.1
   minKubeVersion: 1.25.0
 
@@ -193,7 +193,7 @@ spec:
                   runAsNonRoot: true
                 containers:
                   - name: manager
-                    image: quay.io/redhat-consulting-services/ocp-support-web-operator:v1.8.2
+                    image: quay.io/redhat-consulting-services/ocp-support-web-operator:v1.9.0
                     command: ["/manager"]
                     env:
                       - name: WATCH_NAMESPACE
@@ -201,7 +201,7 @@ spec:
                           fieldRef:
                             fieldPath: metadata.namespace
                       - name: RELATED_IMAGE_APP
-                        value: quay.io/redhat-consulting-services/ocp-support-web:v1.8.2
+                        value: quay.io/redhat-consulting-services/ocp-support-web:v1.9.0
                       - name: RELATED_IMAGE_OAUTH_PROXY
                         value: registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest
                       - name: RELATED_IMAGE_MUST_GATHER_STANDARD
@@ -337,7 +337,7 @@ spec:
 
   relatedImages:
     - name: app
-      image: quay.io/redhat-consulting-services/ocp-support-web:v1.8.2
+      image: quay.io/redhat-consulting-services/ocp-support-web:v1.9.0
     - name: oauth-proxy
       image: registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest
     - name: must-gather-standard
