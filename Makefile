@@ -1,11 +1,11 @@
-VERSION ?= 1.8.1
-OPERATOR_IMG ?= quay.io/kborup/ocp-support-web-operator:v$(VERSION)
-BUNDLE_IMG ?= quay.io/kborup/ocp-support-web-operator-bundle:v$(VERSION)
-CATALOG_IMG ?= quay.io/kborup/ocp-support-web-operator-catalog:v$(VERSION)
-APP_IMG ?= quay.io/kborup/ocp-support-web:v$(VERSION)
+VERSION ?= 1.8.2
+OPERATOR_IMG ?= quay.io/redhat-consulting-services/ocp-support-web-operator:v$(VERSION)
+BUNDLE_IMG ?= quay.io/redhat-consulting-services/ocp-support-web-operator-bundle:v$(VERSION)
+CATALOG_IMG ?= quay.io/redhat-consulting-services/rh-consulting-catalog:v$(VERSION)
+APP_IMG ?= quay.io/redhat-consulting-services/ocp-support-web:v$(VERSION)
 
-OPERATOR_REPO ?= quay.io/kborup/ocp-support-web-operator
-APP_REPO ?= quay.io/kborup/ocp-support-web
+OPERATOR_REPO ?= quay.io/redhat-consulting-services/ocp-support-web-operator
+APP_REPO ?= quay.io/redhat-consulting-services/ocp-support-web
 
 BUILDER_IMAGE ?= registry.redhat.io/ubi9/go-toolset:latest
 RUNTIME_IMAGE ?= registry.redhat.io/ubi9/ubi-micro:latest
