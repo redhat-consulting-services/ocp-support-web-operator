@@ -1,5 +1,5 @@
 ---
-image: quay.io/kborup/ocp-support-web-operator-bundle:v1.4.0
+image: quay.io/redhat-consulting-services/ocp-support-web-operator-bundle:v1.4.0
 name: ocp-support-web-operator.v1.4.0
 package: ocp-support-web-operator
 properties:
@@ -25,11 +25,11 @@ properties:
   value:
     data: eyJhcGlWZXJzaW9uIjoidjEiLCJraW5kIjoiU2VydmljZSIsIm1ldGFkYXRhIjp7ImxhYmVscyI6eyJhcHAua3ViZXJuZXRlcy5pby9uYW1lIjoib2NwLXN1cHBvcnQtd2ViLW9wZXJhdG9yIiwiY29udHJvbC1wbGFuZSI6ImNvbnRyb2xsZXItbWFuYWdlciJ9LCJuYW1lIjoib2NwLXN1cHBvcnQtd2ViLW9wZXJhdG9yLW1ldHJpY3MifSwic3BlYyI6eyJwb3J0cyI6W3sibmFtZSI6Im1ldHJpY3MiLCJwb3J0Ijo4MDgwLCJwcm90b2NvbCI6IlRDUCIsInRhcmdldFBvcnQiOjgwODB9XSwic2VsZWN0b3IiOnsiY29udHJvbC1wbGFuZSI6ImNvbnRyb2xsZXItbWFuYWdlciJ9fX0=
 relatedImages:
-- image: quay.io/kborup/ocp-support-web-operator-bundle:v1.4.0
+- image: quay.io/redhat-consulting-services/ocp-support-web-operator-bundle:v1.4.0
   name: ""
-- image: quay.io/kborup/ocp-support-web-operator:v1.4.0
+- image: quay.io/redhat-consulting-services/ocp-support-web-operator:v1.4.0
   name: ""
-- image: quay.io/kborup/ocp-support-web:v1.4.0
+- image: quay.io/redhat-consulting-services/ocp-support-web:v1.4.0
   name: app
 - image: registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0
   name: must-gather-cnv
@@ -41,7 +41,7 @@ relatedImages:
   name: oauth-proxy
 schema: olm.bundle
 ---
-image: quay.io/kborup/ocp-support-web-operator-bundle:v1.5.0
+image: quay.io/redhat-consulting-services/ocp-support-web-operator-bundle:v1.5.0
 name: ocp-support-web-operator.v1.5.0
 package: ocp-support-web-operator
 properties:
@@ -67,11 +67,11 @@ properties:
   value:
     data: eyJhcGlWZXJzaW9uIjoidjEiLCJraW5kIjoiU2VydmljZSIsIm1ldGFkYXRhIjp7ImxhYmVscyI6eyJhcHAua3ViZXJuZXRlcy5pby9uYW1lIjoib2NwLXN1cHBvcnQtd2ViLW9wZXJhdG9yIiwiY29udHJvbC1wbGFuZSI6ImNvbnRyb2xsZXItbWFuYWdlciJ9LCJuYW1lIjoib2NwLXN1cHBvcnQtd2ViLW9wZXJhdG9yLW1ldHJpY3MifSwic3BlYyI6eyJwb3J0cyI6W3sibmFtZSI6Im1ldHJpY3MiLCJwb3J0Ijo4MDgwLCJwcm90b2NvbCI6IlRDUCIsInRhcmdldFBvcnQiOjgwODB9XSwic2VsZWN0b3IiOnsiY29udHJvbC1wbGFuZSI6ImNvbnRyb2xsZXItbWFuYWdlciJ9fX0=
 relatedImages:
-- image: quay.io/kborup/ocp-support-web-operator-bundle:v1.5.0
+- image: quay.io/redhat-consulting-services/ocp-support-web-operator-bundle:v1.5.0
   name: ""
-- image: quay.io/kborup/ocp-support-web-operator:v1.5.0
+- image: quay.io/redhat-consulting-services/ocp-support-web-operator:v1.5.0
   name: ""
-- image: quay.io/kborup/ocp-support-web:v1.5.0
+- image: quay.io/redhat-consulting-services/ocp-support-web:v1.5.0
   name: app
 - image: registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0
   name: must-gather-cnv
@@ -83,7 +83,7 @@ relatedImages:
   name: oauth-proxy
 schema: olm.bundle
 ---
-image: quay.io/kborup/ocp-support-web-operator-bundle:v1.6.0
+image: quay.io/redhat-consulting-services/ocp-support-web-operator-bundle:v1.6.0
 name: ocp-support-web-operator.v1.6.0
 package: ocp-support-web-operator
 properties:
@@ -109,11 +109,11 @@ properties:
   value:
     data: eyJhcGlWZXJzaW9uIjoidjEiLCJraW5kIjoiU2VydmljZSIsIm1ldGFkYXRhIjp7ImxhYmVscyI6eyJhcHAua3ViZXJuZXRlcy5pby9uYW1lIjoib2NwLXN1cHBvcnQtd2ViLW9wZXJhdG9yIiwiY29udHJvbC1wbGFuZSI6ImNvbnRyb2xsZXItbWFuYWdlciJ9LCJuYW1lIjoib2NwLXN1cHBvcnQtd2ViLW9wZXJhdG9yLW1ldHJpY3MifSwic3BlYyI6eyJwb3J0cyI6W3sibmFtZSI6Im1ldHJpY3MiLCJwb3J0Ijo4MDgwLCJwcm90b2NvbCI6IlRDUCIsInRhcmdldFBvcnQiOjgwODB9XSwic2VsZWN0b3IiOnsiY29udHJvbC1wbGFuZSI6ImNvbnRyb2xsZXItbWFuYWdlciJ9fX0=
 relatedImages:
-- image: quay.io/kborup/ocp-support-web-operator-bundle:v1.6.0
+- image: quay.io/redhat-consulting-services/ocp-support-web-operator-bundle:v1.6.0
   name: ""
-- image: quay.io/kborup/ocp-support-web-operator:v1.6.0
+- image: quay.io/redhat-consulting-services/ocp-support-web-operator:v1.6.0
   name: ""
-- image: quay.io/kborup/ocp-support-web:v1.6.0
+- image: quay.io/redhat-consulting-services/ocp-support-web:v1.6.0
   name: app
 - image: registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0
   name: must-gather-cnv
@@ -125,7 +125,7 @@ relatedImages:
   name: oauth-proxy
 schema: olm.bundle
 ---
-image: quay.io/kborup/ocp-support-web-operator-bundle:v1.7.0
+image: quay.io/redhat-consulting-services/ocp-support-web-operator-bundle:v1.7.0
 name: ocp-support-web-operator.v1.7.0
 package: ocp-support-web-operator
 properties:
@@ -151,11 +151,11 @@ properties:
   value:
     data: eyJhcGlWZXJzaW9uIjoidjEiLCJraW5kIjoiU2VydmljZSIsIm1ldGFkYXRhIjp7ImxhYmVscyI6eyJhcHAua3ViZXJuZXRlcy5pby9uYW1lIjoib2NwLXN1cHBvcnQtd2ViLW9wZXJhdG9yIiwiY29udHJvbC1wbGFuZSI6ImNvbnRyb2xsZXItbWFuYWdlciJ9LCJuYW1lIjoib2NwLXN1cHBvcnQtd2ViLW9wZXJhdG9yLW1ldHJpY3MifSwic3BlYyI6eyJwb3J0cyI6W3sibmFtZSI6Im1ldHJpY3MiLCJwb3J0Ijo4MDgwLCJwcm90b2NvbCI6IlRDUCIsInRhcmdldFBvcnQiOjgwODB9XSwic2VsZWN0b3IiOnsiY29udHJvbC1wbGFuZSI6ImNvbnRyb2xsZXItbWFuYWdlciJ9fX0=
 relatedImages:
-- image: quay.io/kborup/ocp-support-web-operator-bundle:v1.7.0
+- image: quay.io/redhat-consulting-services/ocp-support-web-operator-bundle:v1.7.0
   name: ""
-- image: quay.io/kborup/ocp-support-web-operator:v1.7.0
+- image: quay.io/redhat-consulting-services/ocp-support-web-operator:v1.7.0
   name: ""
-- image: quay.io/kborup/ocp-support-web:v1.7.0
+- image: quay.io/redhat-consulting-services/ocp-support-web:v1.7.0
   name: app
 - image: registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0
   name: must-gather-cnv
@@ -167,7 +167,7 @@ relatedImages:
   name: oauth-proxy
 schema: olm.bundle
 ---
-image: quay.io/kborup/ocp-support-web-operator-bundle:v1.8.0
+image: quay.io/redhat-consulting-services/ocp-support-web-operator-bundle:v1.8.0
 name: ocp-support-web-operator.v1.8.0
 package: ocp-support-web-operator
 properties:
@@ -193,11 +193,11 @@ properties:
   value:
     data: eyJhcGlWZXJzaW9uIjoidjEiLCJraW5kIjoiU2VydmljZSIsIm1ldGFkYXRhIjp7ImxhYmVscyI6eyJhcHAua3ViZXJuZXRlcy5pby9uYW1lIjoib2NwLXN1cHBvcnQtd2ViLW9wZXJhdG9yIiwiY29udHJvbC1wbGFuZSI6ImNvbnRyb2xsZXItbWFuYWdlciJ9LCJuYW1lIjoib2NwLXN1cHBvcnQtd2ViLW9wZXJhdG9yLW1ldHJpY3MifSwic3BlYyI6eyJwb3J0cyI6W3sibmFtZSI6Im1ldHJpY3MiLCJwb3J0Ijo4MDgwLCJwcm90b2NvbCI6IlRDUCIsInRhcmdldFBvcnQiOjgwODB9XSwic2VsZWN0b3IiOnsiY29udHJvbC1wbGFuZSI6ImNvbnRyb2xsZXItbWFuYWdlciJ9fX0=
 relatedImages:
-- image: quay.io/kborup/ocp-support-web-operator-bundle:v1.8.0
+- image: quay.io/redhat-consulting-services/ocp-support-web-operator-bundle:v1.8.0
   name: ""
-- image: quay.io/kborup/ocp-support-web-operator:v1.8.0
+- image: quay.io/redhat-consulting-services/ocp-support-web-operator:v1.8.0
   name: ""
-- image: quay.io/kborup/ocp-support-web:v1.8.0
+- image: quay.io/redhat-consulting-services/ocp-support-web:v1.8.0
   name: app
 - image: registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0
   name: must-gather-cnv
@@ -209,8 +209,8 @@ relatedImages:
   name: oauth-proxy
 schema: olm.bundle
 ---
-image: quay.io/kborup/ocp-support-web-operator-bundle:v1.8.1
-name: ocp-support-web-operator.v1.8.1
+image: quay.io/redhat-consulting-services/ocp-support-web-operator-bundle:v1.8.2
+name: ocp-support-web-operator.v1.8.2
 package: ocp-support-web-operator
 properties:
 - type: olm.gvk
@@ -221,7 +221,7 @@ properties:
 - type: olm.package
   value:
     packageName: ocp-support-web-operator
-    version: 1.8.1
+    version: 1.8.2
 - type: olm.bundle.object
   value:
     data: eyJhcGlWZXJzaW9uIjoiYXBpZXh0ZW5zaW9ucy5rOHMuaW8vdjEiLCJraW5kIjoiQ3VzdG9tUmVzb3VyY2VEZWZpbml0aW9uIiwibWV0YWRhdGEiOnsiYW5ub3RhdGlvbnMiOnsiY29udHJvbGxlci1nZW4ua3ViZWJ1aWxkZXIuaW8vdmVyc2lvbiI6InYwLjE2LjEifSwibmFtZSI6Im9jcHN1cHBvcnR3ZWJzLnN1cHBvcnQub3BlbnNoaWZ0LmlvIn0sInNwZWMiOnsiZ3JvdXAiOiJzdXBwb3J0Lm9wZW5zaGlmdC5pbyIsIm5hbWVzIjp7ImtpbmQiOiJPQ1BTdXBwb3J0V2ViIiwibGlzdEtpbmQiOiJPQ1BTdXBwb3J0V2ViTGlzdCIsInBsdXJhbCI6Im9jcHN1cHBvcnR3ZWJzIiwic2hvcnROYW1lcyI6WyJvc3ciXSwic2luZ3VsYXIiOiJvY3BzdXBwb3J0d2ViIn0sInNjb3BlIjoiTmFtZXNwYWNlZCIsInZlcnNpb25zIjpbeyJhZGRpdGlvbmFsUHJpbnRlckNvbHVtbnMiOlt7Impzb25QYXRoIjoiLnN0YXR1cy5waGFzZSIsIm5hbWUiOiJQaGFzZSIsInR5cGUiOiJzdHJpbmcifSx7Impzb25QYXRoIjoiLnN0YXR1cy5yb3V0ZVVSTCIsIm5hbWUiOiJVUkwiLCJ0eXBlIjoic3RyaW5nIn0seyJqc29uUGF0aCI6Ii5tZXRhZGF0YS5jcmVhdGlvblRpbWVzdGFtcCIsIm5hbWUiOiJBZ2UiLCJ0eXBlIjoiZGF0ZSJ9XSwibmFtZSI6InYxYWxwaGExIiwic2NoZW1hIjp7Im9wZW5BUElWM1NjaGVtYSI6eyJkZXNjcmlwdGlvbiI6Ik9DUFN1cHBvcnRXZWIgZGVwbG95cyB0aGUgT0NQIFN1cHBvcnQgV2ViIGFwcGxpY2F0aW9uIHRvIGFuIE9wZW5TaGlmdCBjbHVzdGVyLiIsInByb3BlcnRpZXMiOnsiYXBpVmVyc2lvbiI6eyJ0eXBlIjoic3RyaW5nIn0sImtpbmQiOnsidHlwZSI6InN0cmluZyJ9LCJtZXRhZGF0YSI6eyJ0eXBlIjoib2JqZWN0In0sInNwZWMiOnsiZGVzY3JpcHRpb24iOiJEZXNpcmVkIHN0YXRlIG9mIHRoZSBPQ1AgU3VwcG9ydCBXZWIgZGVwbG95bWVudC4iLCJwcm9wZXJ0aWVzIjp7ImNsdXN0ZXJEb21haW4iOnsiZGVzY3JpcHRpb24iOiJDbHVzdGVyIGFwcHMgZG9tYWluIChlLmcuIGFwcHMubXljbHVzdGVyLmV4YW1wbGUuY29tKS4gQXV0by1kZXRlY3RlZCBmcm9tIEluZ3Jlc3MgY29uZmlnIGlmIG5vdCBzcGVjaWZpZWQuIiwidHlwZSI6InN0cmluZyJ9LCJpbWFnZSI6eyJkZXNjcmlwdGlvbiI6IkFwcGxpY2F0aW9uIGNvbnRhaW5lciBpbWFnZS4gSWYgbm90IHNldCwgdGhlIG9wZXJhdG9yIHVzZXMgdGhlIFJFTEFURURfSU1BR0VfQVBQIGVudmlyb25tZW50IHZhcmlhYmxlIGZyb20gdGhlIG9wZXJhdG9yIGRlcGxveW1lbnQuIiwidHlwZSI6InN0cmluZyJ9LCJtdXN0R2F0aGVySW1hZ2VzIjp7ImRlc2NyaXB0aW9uIjoiQ29udGFpbmVyIGltYWdlcyBmb3IgbXVzdC1nYXRoZXIgb3BlcmF0aW9ucyAoZGlzY29ubmVjdGVkIHN1cHBvcnQpLiIsInByb3BlcnRpZXMiOnsiY252Ijp7ImRlc2NyaXB0aW9uIjoiT3BlblNoaWZ0IFZpcnR1YWxpemF0aW9uIChDTlYpIG11c3QtZ2F0aGVyIGltYWdlLiIsInR5cGUiOiJzdHJpbmcifSwib2RmIjp7ImRlc2NyaXB0aW9uIjoiT3BlblNoaWZ0IERhdGEgRm91bmRhdGlvbiAoT0RGKSBtdXN0LWdhdGhlciBpbWFnZS4iLCJ0eXBlIjoic3RyaW5nIn0sInN0YW5kYXJkIjp7ImRlc2NyaXB0aW9uIjoiU3RhbmRhcmQgT3BlblNoaWZ0IG11c3QtZ2F0aGVyIGltYWdlLiBJZiBub3Qgc2V0LCBvYyB1c2VzIHRoZSBpbWFnZSBmcm9tIHRoZSBjbHVzdGVyIHJlbGVhc2UgcGF5bG9hZC4iLCJ0eXBlIjoic3RyaW5nIn19LCJ0eXBlIjoib2JqZWN0In0sIm9hdXRoUHJveHlJbWFnZSI6eyJkZXNjcmlwdGlvbiI6Ik9wZW5TaGlmdCBPQXV0aCBwcm94eSBzaWRlY2FyIGltYWdlLiBEZWZhdWx0cyB0byByZWdpc3RyeS5yZWRoYXQuaW8vb3BlbnNoaWZ0NC9vc2Utb2F1dGgtcHJveHktcmhlbDk6bGF0ZXN0LiIsInR5cGUiOiJzdHJpbmcifSwib2F1dGhQcm94eVJlc291cmNlcyI6eyJkZXNjcmlwdGlvbiI6IkNvbXB1dGUgcmVzb3VyY2UgcmVxdWlyZW1lbnRzIGZvciB0aGUgT0F1dGggcHJveHkgc2lkZWNhci4iLCJwcm9wZXJ0aWVzIjp7ImxpbWl0cyI6eyJhZGRpdGlvbmFsUHJvcGVydGllcyI6eyJhbnlPZiI6W3sidHlwZSI6ImludGVnZXIifSx7InR5cGUiOiJzdHJpbmcifV0sIngta3ViZXJuZXRlcy1pbnQtb3Itc3RyaW5nIjp0cnVlfSwidHlwZSI6Im9iamVjdCJ9LCJyZXF1ZXN0cyI6eyJhZGRpdGlvbmFsUHJvcGVydGllcyI6eyJhbnlPZiI6W3sidHlwZSI6ImludGVnZXIifSx7InR5cGUiOiJzdHJpbmcifV0sIngta3ViZXJuZXRlcy1pbnQtb3Itc3RyaW5nIjp0cnVlfSwidHlwZSI6Im9iamVjdCJ9fSwidHlwZSI6Im9iamVjdCJ9LCJyZXNvdXJjZXMiOnsiZGVzY3JpcHRpb24iOiJDb21wdXRlIHJlc291cmNlIHJlcXVpcmVtZW50cyBmb3IgdGhlIGFwcGxpY2F0aW9uIGNvbnRhaW5lci4iLCJwcm9wZXJ0aWVzIjp7ImxpbWl0cyI6eyJhZGRpdGlvbmFsUHJvcGVydGllcyI6eyJhbnlPZiI6W3sidHlwZSI6ImludGVnZXIifSx7InR5cGUiOiJzdHJpbmcifV0sIngta3ViZXJuZXRlcy1pbnQtb3Itc3RyaW5nIjp0cnVlfSwidHlwZSI6Im9iamVjdCJ9LCJyZXF1ZXN0cyI6eyJhZGRpdGlvbmFsUHJvcGVydGllcyI6eyJhbnlPZiI6W3sidHlwZSI6ImludGVnZXIifSx7InR5cGUiOiJzdHJpbmcifV0sIngta3ViZXJuZXRlcy1pbnQtb3Itc3RyaW5nIjp0cnVlfSwidHlwZSI6Im9iamVjdCJ9fSwidHlwZSI6Im9iamVjdCJ9LCJyb3V0ZSI6eyJkZXNjcmlwdGlvbiI6IlJvdXRlIGNvbmZpZ3VyYXRpb24uIiwicHJvcGVydGllcyI6eyJob3N0Ijp7ImRlc2NyaXB0aW9uIjoiQ3VzdG9tIGhvc3RuYW1lIGZvciB0aGUgUm91dGUuIEF1dG8tZ2VuZXJhdGVkIGlmIG5vdCBzZXQuIiwidHlwZSI6InN0cmluZyJ9fSwidHlwZSI6Im9iamVjdCJ9fSwidHlwZSI6Im9iamVjdCJ9LCJzdGF0dXMiOnsiZGVzY3JpcHRpb24iOiJPYnNlcnZlZCBzdGF0ZSBvZiB0aGUgT0NQIFN1cHBvcnQgV2ViIGRlcGxveW1lbnQuIiwicHJvcGVydGllcyI6eyJhcHBJbWFnZSI6eyJkZXNjcmlwdGlvbiI6IlJlc29sdmVkIGFwcGxpY2F0aW9uIGltYWdlIGluIHVzZS4iLCJ0eXBlIjoic3RyaW5nIn0sImNvbmRpdGlvbnMiOnsiZGVzY3JpcHRpb24iOiJDb25kaXRpb25zIHJlcHJlc2VudCB0aGUgbGF0ZXN0IGF2YWlsYWJsZSBvYnNlcnZhdGlvbnMuIiwiaXRlbXMiOnsicHJvcGVydGllcyI6eyJsYXN0VHJhbnNpdGlvblRpbWUiOnsiZm9ybWF0IjoiZGF0ZS10aW1lIiwidHlwZSI6InN0cmluZyJ9LCJtZXNzYWdlIjp7InR5cGUiOiJzdHJpbmcifSwicmVhc29uIjp7InR5cGUiOiJzdHJpbmcifSwic3RhdHVzIjp7ImVudW0iOlsiVHJ1ZSIsIkZhbHNlIiwiVW5rbm93biJdLCJ0eXBlIjoic3RyaW5nIn0sInR5cGUiOnsidHlwZSI6InN0cmluZyJ9fSwicmVxdWlyZWQiOlsidHlwZSIsInN0YXR1cyIsInJlYXNvbiIsImxhc3RUcmFuc2l0aW9uVGltZSJdLCJ0eXBlIjoib2JqZWN0In0sInR5cGUiOiJhcnJheSJ9LCJwaGFzZSI6eyJkZXNjcmlwdGlvbiI6IkN1cnJlbnQgbGlmZWN5Y2xlIHBoYXNlIChBdmFpbGFibGUsIEZhaWxlZCkuIiwidHlwZSI6InN0cmluZyJ9LCJyb3V0ZVVSTCI6eyJkZXNjcmlwdGlvbiI6IkV4dGVybmFsbHkgcmVhY2hhYmxlIFVSTCBmb3IgdGhlIGFwcGxpY2F0aW9uLiIsInR5cGUiOiJzdHJpbmcifX0sInR5cGUiOiJvYmplY3QifX0sInR5cGUiOiJvYmplY3QifX0sInNlcnZlZCI6dHJ1ZSwic3RvcmFnZSI6dHJ1ZSwic3VicmVzb3VyY2VzIjp7InN0YXR1cyI6e319fV19fQ==
@@ -235,11 +235,11 @@ properties:
   value:
     data: eyJhcGlWZXJzaW9uIjoidjEiLCJraW5kIjoiU2VydmljZSIsIm1ldGFkYXRhIjp7ImxhYmVscyI6eyJhcHAua3ViZXJuZXRlcy5pby9uYW1lIjoib2NwLXN1cHBvcnQtd2ViLW9wZXJhdG9yIiwiY29udHJvbC1wbGFuZSI6ImNvbnRyb2xsZXItbWFuYWdlciJ9LCJuYW1lIjoib2NwLXN1cHBvcnQtd2ViLW9wZXJhdG9yLW1ldHJpY3MifSwic3BlYyI6eyJwb3J0cyI6W3sibmFtZSI6Im1ldHJpY3MiLCJwb3J0Ijo4MDgwLCJwcm90b2NvbCI6IlRDUCIsInRhcmdldFBvcnQiOjgwODB9XSwic2VsZWN0b3IiOnsiY29udHJvbC1wbGFuZSI6ImNvbnRyb2xsZXItbWFuYWdlciJ9fX0=
 relatedImages:
-- image: quay.io/kborup/ocp-support-web-operator-bundle:v1.8.1
+- image: quay.io/redhat-consulting-services/ocp-support-web-operator-bundle:v1.8.2
   name: ""
-- image: quay.io/kborup/ocp-support-web-operator@sha256:74c737e06083598660287c7e04a740ffbee707760d31ed00183cbd48ca066ef6
+- image: quay.io/redhat-consulting-services/ocp-support-web-operator.v1.8.2
   name: ""
-- image: quay.io/kborup/ocp-support-web@sha256:31b812f459c1b1a2c9966a37770ecec79072bcc0bfd8b6d69aa836e2bc003ad3
+- image: quay.io/redhat-consulting-services/ocp-support-web:v1.8.2
   name: app
 - image: registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0
   name: must-gather-cnv

@@ -1,0 +1,209 @@
+name: Build and Push
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+env:
+  OPERATOR_IMAGE: quay.io/redhat-consulting-services/ocp-support-web-operator
+  BUNDLE_IMAGE: quay.io/redhat-consulting-services/ocp-support-web-operator-bundle
+  CATALOG_IMAGE: quay.io/redhat-consulting-services/rh-consulting-catalog
+  BUILDER_IMAGE: registry.redhat.io/ubi9/go-toolset:latest
+  RUNTIME_IMAGE: registry.redhat.io/ubi9/ubi-micro:latest
+
+jobs:
+  build-operator:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Red Hat registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.redhat.io
+          username: ${{ secrets.REDHAT_REGISTRY_USER }}
+          password: ${{ secrets.REDHAT_REGISTRY_PASSWORD }}
+
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+            echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+            echo "is_release=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "tags<<EOF"
+              echo "${TAG}"
+              echo "latest"
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=latest" >> "$GITHUB_OUTPUT"
+            echo "is_release=false" >> "$GITHUB_OUTPUT"
+            echo "tags=latest" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build operator image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.OPERATOR_IMAGE }}
+          tags: ${{ steps.version.outputs.tags }}
+          containerfiles: ./Containerfile
+          build-args: |
+            BUILDER_IMAGE=${{ env.BUILDER_IMAGE }}
+            RUNTIME_IMAGE=${{ env.RUNTIME_IMAGE }}
+
+      - name: Log in to Quay.io
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_IO_USERNAME }}
+          password: ${{ secrets.QUAY_IO_PASSWORD }}
+
+      - name: Push operator to Quay.io
+        if: github.event_name == 'push'
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ocp-support-web-operator
+          registry: quay.io/redhat-consulting-services
+          tags: ${{ steps.version.outputs.tags }}
+
+      - name: Create GitHub Release
+        if: steps.version.outputs.is_release == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+
+  build-bundle:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: build-operator
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine version
+        id: version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          {
+            echo "tags<<EOF"
+            echo "${TAG}"
+            echo "latest"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Build bundle image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.BUNDLE_IMAGE }}
+          tags: ${{ steps.version.outputs.tags }}
+          containerfiles: ./bundle/Containerfile
+          context: ./bundle
+
+      - name: Log in to Quay.io
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_IO_USERNAME }}
+          password: ${{ secrets.QUAY_IO_PASSWORD }}
+
+      - name: Push bundle to Quay.io
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: ocp-support-web-operator-bundle
+          registry: quay.io/redhat-consulting-services
+          tags: ${{ steps.version.outputs.tags }}
+
+  build-catalog:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    needs: build-bundle
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to Red Hat registry
+        uses: docker/login-action@v3
+        with:
+          registry: registry.redhat.io
+          username: ${{ secrets.REDHAT_REGISTRY_USER }}
+          password: ${{ secrets.REDHAT_REGISTRY_PASSWORD }}
+
+      - name: Log in to Quay.io
+        uses: docker/login-action@v3
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_IO_USERNAME }}
+          password: ${{ secrets.QUAY_IO_PASSWORD }}
+
+      - name: Determine version
+        id: version
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          echo "tag=${TAG}" >> "$GITHUB_OUTPUT"
+          {
+            echo "tags<<EOF"
+            echo "${TAG}"
+            echo "latest"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Install opm
+        run: |
+          OPM_VERSION=$(curl -s https://api.github.com/repos/operator-framework/operator-registry/releases/latest | grep '"tag_name"' | sed 's/.*"v\(.*\)".*/\1/')
+          curl -sLO "https://github.com/operator-framework/operator-registry/releases/download/v${OPM_VERSION}/linux-amd64-opm"
+          chmod +x linux-amd64-opm
+          sudo mv linux-amd64-opm /usr/local/bin/opm
+
+      - name: Render bundle into catalog
+        run: |
+          BUNDLE="${{ env.BUNDLE_IMAGE }}:${{ steps.version.outputs.tag }}"
+          VERSION="${{ steps.version.outputs.tag }}"
+          VERSION_NUM="${VERSION#v}"
+          OPERATOR_YAML="catalog/configs/operator.yaml"
+          # Remove the existing entry for this version (from its image line to next --- or EOF)
+          python3 -c "
+          import re, sys
+          content = open('${OPERATOR_YAML}').read()
+          # Split on --- separators
+          parts = content.split('\n---\n')
+          filtered = [p for p in parts if 'name: ocp-support-web-operator.v${VERSION_NUM}\n' not in p]
+          result = '\n---\n'.join(filtered)
+          if not result.endswith('\n'):
+              result += '\n'
+          open('${OPERATOR_YAML}', 'w').write(result)
+          "
+          # Append freshly rendered bundle
+          echo '---' >> "${OPERATOR_YAML}"
+          opm render "${BUNDLE}" -o yaml >> "${OPERATOR_YAML}"
+          # Update channel to include this version
+          CHANNEL_YAML="catalog/configs/channel.yaml"
+          if ! grep -q "ocp-support-web-operator.v${VERSION_NUM}" "${CHANNEL_YAML}"; then
+            # Find the previous version to set as replaces
+            PREV=$(grep '  - name:' "${CHANNEL_YAML}" | tail -1 | sed 's/.*name: //')
+            echo "  - name: ocp-support-web-operator.v${VERSION_NUM}" >> "${CHANNEL_YAML}"
+            echo "    replaces: ${PREV}" >> "${CHANNEL_YAML}"
+          fi
+          # Validate catalog
+          opm validate catalog/configs/
+
+      - name: Build catalog image
+        uses: redhat-actions/buildah-build@v2
+        with:
+          image: ${{ env.CATALOG_IMAGE }}
+          tags: ${{ steps.version.outputs.tags }}
+          containerfiles: ./catalog/Containerfile
+          context: ./catalog
+
+      - name: Push catalog to Quay.io
+        uses: redhat-actions/push-to-registry@v2
+        with:
+          image: rh-consulting-catalog
+          registry: quay.io/redhat-consulting-services
+          tags: ${{ steps.version.outputs.tags }}

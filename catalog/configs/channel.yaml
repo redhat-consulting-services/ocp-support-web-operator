@@ -14,3 +14,5 @@ entries:
     replaces: ocp-support-web-operator.v1.7.0
   - name: ocp-support-web-operator.v1.8.1
     replaces: ocp-support-web-operator.v1.8.0
+  - name: ocp-support-web-operator.v1.8.2
+    replaces: ocp-support-web-operator.v1.8.1
