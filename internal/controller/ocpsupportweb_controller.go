@@ -35,12 +35,8 @@ const (
 	defaultStandardMustGather       = "registry.redhat.io/openshift4/ose-must-gather-rhel9:latest"
 	defaultCNVMustGather            = "registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0"
 	defaultODFMustGather            = "registry.redhat.io/odf4/ocs-must-gather-rhel9:latest"
-	defaultLoggingMustGather        = "registry.redhat.io/openshift-logging/cluster-logging-must-gather-rhel9:latest"
-	defaultServiceMeshMustGather    = "registry.redhat.io/openshift-service-mesh/istio-must-gather-rhel9:latest"
-	defaultComplianceMustGather     = "registry.redhat.io/compliance/openshift-compliance-must-gather-rhel8:latest"
-	defaultMTCMustGather            = "registry.redhat.io/rhmtc/openshift-migration-must-gather-rhel8:latest"
-	defaultGitOpsMustGather         = "registry.redhat.io/openshift-gitops-1/must-gather-rhel8:latest"
-	defaultServerlessMustGather     = "registry.redhat.io/openshift-serverless-1/svls-must-gather-rhel8:latest"
+	defaultLoggingMustGather    = "registry.redhat.io/openshift-logging/cluster-logging-must-gather-rhel9:latest"
+	defaultComplianceMustGather = "registry.redhat.io/compliance/openshift-compliance-must-gather-rhel8:latest"
 )
 
 type OCPSupportWebReconciler struct {
@@ -140,24 +136,36 @@ func (r *OCPSupportWebReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		needsUpdate = true
 	}
 	if instance.Spec.MustGatherImages.ServiceMesh == "" {
-		instance.Spec.MustGatherImages.ServiceMesh = r.resolveImage("", "RELATED_IMAGE_MUST_GATHER_SERVICE_MESH", defaultServiceMeshMustGather)
-		needsUpdate = true
+		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_SERVICE_MESH"]; v != "" {
+			instance.Spec.MustGatherImages.ServiceMesh = v
+			needsUpdate = true
+		}
+		// No default — app auto-detects version from installed CSV
 	}
 	if instance.Spec.MustGatherImages.Compliance == "" {
 		instance.Spec.MustGatherImages.Compliance = r.resolveImage("", "RELATED_IMAGE_MUST_GATHER_COMPLIANCE", defaultComplianceMustGather)
 		needsUpdate = true
 	}
 	if instance.Spec.MustGatherImages.MTC == "" {
-		instance.Spec.MustGatherImages.MTC = r.resolveImage("", "RELATED_IMAGE_MUST_GATHER_MTC", defaultMTCMustGather)
-		needsUpdate = true
+		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_MTC"]; v != "" {
+			instance.Spec.MustGatherImages.MTC = v
+			needsUpdate = true
+		}
+		// No default — app auto-detects version from installed CSV
 	}
 	if instance.Spec.MustGatherImages.GitOps == "" {
-		instance.Spec.MustGatherImages.GitOps = r.resolveImage("", "RELATED_IMAGE_MUST_GATHER_GITOPS", defaultGitOpsMustGather)
-		needsUpdate = true
+		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_GITOPS"]; v != "" {
+			instance.Spec.MustGatherImages.GitOps = v
+			needsUpdate = true
+		}
+		// No default — app auto-detects version from installed CSV
 	}
 	if instance.Spec.MustGatherImages.Serverless == "" {
-		instance.Spec.MustGatherImages.Serverless = r.resolveImage("", "RELATED_IMAGE_MUST_GATHER_SERVERLESS", defaultServerlessMustGather)
-		needsUpdate = true
+		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_SERVERLESS"]; v != "" {
+			instance.Spec.MustGatherImages.Serverless = v
+			needsUpdate = true
+		}
+		// No default — app auto-detects version from installed CSV
 	}
 
 	if instance.Spec.ClusterDomain == "" {
