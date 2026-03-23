@@ -28,7 +28,7 @@ metadata:
       ]
     capabilities: Full Lifecycle
     categories: Developer Tools
-    containerImage: quay.io/redhat-consulting-services/ocp-support-web-operator:v2.0.1
+    containerImage: quay.io/redhat-consulting-services/ocp-support-web-operator:v2.1.0
     description: >-
       OpenShift Support Tools in a web app. Expose the most common tools used
       for Red Hat support cases through a web application — must-gather, etcd
@@ -216,7 +216,7 @@ spec:
                   runAsNonRoot: true
                 containers:
                   - name: manager
-                    image: quay.io/redhat-consulting-services/ocp-support-web-operator:v2.0.1
+                    image: quay.io/redhat-consulting-services/ocp-support-web-operator:v2.1.0
                     command: ["/manager"]
                     env:
                       - name: WATCH_NAMESPACE
