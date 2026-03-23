@@ -13,7 +13,7 @@ metadata:
             "name": "ocpsupportweb"
           },
           "spec": {
-            "image": "quay.io/redhat-consulting-services/ocp-support-web:v2.0.1",
+            "image": "quay.io/redhat-consulting-services/ocp-support-web:v2.1.0",
             "resources": {
               "requests": {
                 "cpu": "50m",
@@ -119,8 +119,8 @@ spec:
       operator version (which updates the default RELATED_IMAGE_APP)
     - Rolling updates ensure zero downtime during upgrades
   maturity: alpha
-  version: 2.0.1
-  replaces: ocp-support-web-operator.v2.0.0
+  version: 2.1.0
+  replaces: ocp-support-web-operator.v2.0.1
   minKubeVersion: 1.25.0
 
   keywords:
@@ -224,7 +224,7 @@ spec:
                           fieldRef:
                             fieldPath: metadata.namespace
                       - name: RELATED_IMAGE_APP
-                        value: quay.io/redhat-consulting-services/ocp-support-web:v2.0.1
+                        value: quay.io/redhat-consulting-services/ocp-support-web:v2.1.0
                       - name: RELATED_IMAGE_OAUTH_PROXY
                         value: registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest
                       - name: RELATED_IMAGE_MUST_GATHER_STANDARD
@@ -504,7 +504,7 @@ spec:
 
   relatedImages:
     - name: app
-      image: quay.io/redhat-consulting-services/ocp-support-web:v2.0.1
+      image: quay.io/redhat-consulting-services/ocp-support-web:v2.1.0
     - name: oauth-proxy
       image: registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest
     - name: must-gather-standard
