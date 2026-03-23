@@ -1,7 +1,7 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
-  name: ocp-support-web-operator.v1.9.0
+  name: ocp-support-web-operator.v2.0.0
   namespace: placeholder
   annotations:
     alm-examples: |-
@@ -13,7 +13,7 @@ metadata:
             "name": "ocpsupportweb"
           },
           "spec": {
-            "image": "quay.io/redhat-consulting-services/ocp-support-web:v1.9.0",
+            "image": "quay.io/redhat-consulting-services/ocp-support-web:v2.0.0",
             "resources": {
               "requests": {
                 "cpu": "50m",
@@ -28,7 +28,7 @@ metadata:
       ]
     capabilities: Full Lifecycle
     categories: Developer Tools
-    containerImage: quay.io/redhat-consulting-services/ocp-support-web-operator:v1.9.0
+    containerImage: quay.io/redhat-consulting-services/ocp-support-web-operator:v2.0.0
     description: >-
       OpenShift Support Tools in a web app. Expose the most common tools used
       for Red Hat support cases through a web application — must-gather, etcd
@@ -96,8 +96,8 @@ spec:
       operator version (which updates the default RELATED_IMAGE_APP)
     - Rolling updates ensure zero downtime during upgrades
   maturity: alpha
-  version: 1.9.0
-  replaces: ocp-support-web-operator.v1.8.1
+  version: 2.0.0
+  replaces: ocp-support-web-operator.v1.9.0
   minKubeVersion: 1.25.0
 
   keywords:
@@ -193,7 +193,7 @@ spec:
                   runAsNonRoot: true
                 containers:
                   - name: manager
-                    image: quay.io/redhat-consulting-services/ocp-support-web-operator:v1.9.0
+                    image: quay.io/redhat-consulting-services/ocp-support-web-operator:v2.0.0
                     command: ["/manager"]
                     env:
                       - name: WATCH_NAMESPACE
@@ -201,7 +201,7 @@ spec:
                           fieldRef:
                             fieldPath: metadata.namespace
                       - name: RELATED_IMAGE_APP
-                        value: quay.io/redhat-consulting-services/ocp-support-web:v1.9.0
+                        value: quay.io/redhat-consulting-services/ocp-support-web:v2.0.0
                       - name: RELATED_IMAGE_OAUTH_PROXY
                         value: registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest
                       - name: RELATED_IMAGE_MUST_GATHER_STANDARD
@@ -210,6 +210,18 @@ spec:
                         value: registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0
                       - name: RELATED_IMAGE_MUST_GATHER_ODF
                         value: registry.redhat.io/odf4/ocs-must-gather-rhel9:latest
+                      - name: RELATED_IMAGE_MUST_GATHER_LOGGING
+                        value: registry.redhat.io/openshift-logging/cluster-logging-must-gather-rhel9:latest
+                      - name: RELATED_IMAGE_MUST_GATHER_SERVICE_MESH
+                        value: registry.redhat.io/openshift-service-mesh/istio-must-gather-rhel9:latest
+                      - name: RELATED_IMAGE_MUST_GATHER_COMPLIANCE
+                        value: registry.redhat.io/compliance/openshift-compliance-must-gather-rhel8:latest
+                      - name: RELATED_IMAGE_MUST_GATHER_MTC
+                        value: registry.redhat.io/rhmtc/openshift-migration-must-gather-rhel8:latest
+                      - name: RELATED_IMAGE_MUST_GATHER_GITOPS
+                        value: registry.redhat.io/openshift-gitops-1/must-gather-rhel8:latest
+                      - name: RELATED_IMAGE_MUST_GATHER_SERVERLESS
+                        value: registry.redhat.io/openshift-serverless-1/svls-must-gather-rhel8:latest
                     ports:
                       - containerPort: 8080
                         name: metrics
@@ -289,6 +301,57 @@ spec:
               - urn:alm:descriptor:com.tectonic.ui:text
               - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
               - urn:alm:descriptor:com.tectonic.ui:advanced
+          - path: mustGatherImages.acm
+            displayName: ACM Must-Gather Image
+            description: >-
+              Container image for Advanced Cluster Management must-gather.
+              Auto-detected from the installed ACM version if not set.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
+              - urn:alm:descriptor:com.tectonic.ui:advanced
+          - path: mustGatherImages.logging
+            displayName: Logging Must-Gather Image
+            description: Container image for OpenShift Logging must-gather.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
+              - urn:alm:descriptor:com.tectonic.ui:advanced
+          - path: mustGatherImages.serviceMesh
+            displayName: Service Mesh Must-Gather Image
+            description: Container image for OpenShift Service Mesh must-gather.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
+              - urn:alm:descriptor:com.tectonic.ui:advanced
+          - path: mustGatherImages.compliance
+            displayName: Compliance Must-Gather Image
+            description: Container image for Compliance Operator must-gather.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
+              - urn:alm:descriptor:com.tectonic.ui:advanced
+          - path: mustGatherImages.mtc
+            displayName: MTC Must-Gather Image
+            description: Container image for Migration Toolkit for Containers must-gather.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
+              - urn:alm:descriptor:com.tectonic.ui:advanced
+          - path: mustGatherImages.gitops
+            displayName: GitOps Must-Gather Image
+            description: Container image for OpenShift GitOps must-gather.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
+              - urn:alm:descriptor:com.tectonic.ui:advanced
+          - path: mustGatherImages.serverless
+            displayName: Serverless Must-Gather Image
+            description: Container image for OpenShift Serverless must-gather.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
+              - urn:alm:descriptor:com.tectonic.ui:advanced
           - path: clusterDomain
             displayName: Cluster Domain
             description: >-
@@ -337,7 +400,7 @@ spec:
 
   relatedImages:
     - name: app
-      image: quay.io/redhat-consulting-services/ocp-support-web:v1.9.0
+      image: quay.io/redhat-consulting-services/ocp-support-web:v2.0.0
     - name: oauth-proxy
       image: registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest
     - name: must-gather-standard
@@ -346,3 +409,15 @@ spec:
       image: registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0
     - name: must-gather-odf
       image: registry.redhat.io/odf4/ocs-must-gather-rhel9:latest
+    - name: must-gather-logging
+      image: registry.redhat.io/openshift-logging/cluster-logging-must-gather-rhel9:latest
+    - name: must-gather-service-mesh
+      image: registry.redhat.io/openshift-service-mesh/istio-must-gather-rhel9:latest
+    - name: must-gather-compliance
+      image: registry.redhat.io/compliance/openshift-compliance-must-gather-rhel8:latest
+    - name: must-gather-mtc
+      image: registry.redhat.io/rhmtc/openshift-migration-must-gather-rhel8:latest
+    - name: must-gather-gitops
+      image: registry.redhat.io/openshift-gitops-1/must-gather-rhel8:latest
+    - name: must-gather-serverless
+      image: registry.redhat.io/openshift-serverless-1/svls-must-gather-rhel8:latest

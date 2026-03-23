@@ -31,10 +31,16 @@ const (
 	finalizerName = "support.openshift.io/finalizer"
 	appName       = "ocp-support-web"
 
-	defaultOAuthProxyImage    = "registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest"
-	defaultStandardMustGather = "registry.redhat.io/openshift4/ose-must-gather-rhel9:latest"
-	defaultCNVMustGather      = "registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0"
-	defaultODFMustGather      = "registry.redhat.io/odf4/ocs-must-gather-rhel9:latest"
+	defaultOAuthProxyImage          = "registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest"
+	defaultStandardMustGather       = "registry.redhat.io/openshift4/ose-must-gather-rhel9:latest"
+	defaultCNVMustGather            = "registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0"
+	defaultODFMustGather            = "registry.redhat.io/odf4/ocs-must-gather-rhel9:latest"
+	defaultLoggingMustGather        = "registry.redhat.io/openshift-logging/cluster-logging-must-gather-rhel9:latest"
+	defaultServiceMeshMustGather    = "registry.redhat.io/openshift-service-mesh/istio-must-gather-rhel9:latest"
+	defaultComplianceMustGather     = "registry.redhat.io/compliance/openshift-compliance-must-gather-rhel8:latest"
+	defaultMTCMustGather            = "registry.redhat.io/rhmtc/openshift-migration-must-gather-rhel8:latest"
+	defaultGitOpsMustGather         = "registry.redhat.io/openshift-gitops-1/must-gather-rhel8:latest"
+	defaultServerlessMustGather     = "registry.redhat.io/openshift-serverless-1/svls-must-gather-rhel8:latest"
 )
 
 type OCPSupportWebReconciler struct {
@@ -129,6 +135,30 @@ func (r *OCPSupportWebReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		instance.Spec.MustGatherImages.ODF = odf
 		needsUpdate = true
 	}
+	if instance.Spec.MustGatherImages.Logging == "" {
+		instance.Spec.MustGatherImages.Logging = r.resolveImage("", "RELATED_IMAGE_MUST_GATHER_LOGGING", defaultLoggingMustGather)
+		needsUpdate = true
+	}
+	if instance.Spec.MustGatherImages.ServiceMesh == "" {
+		instance.Spec.MustGatherImages.ServiceMesh = r.resolveImage("", "RELATED_IMAGE_MUST_GATHER_SERVICE_MESH", defaultServiceMeshMustGather)
+		needsUpdate = true
+	}
+	if instance.Spec.MustGatherImages.Compliance == "" {
+		instance.Spec.MustGatherImages.Compliance = r.resolveImage("", "RELATED_IMAGE_MUST_GATHER_COMPLIANCE", defaultComplianceMustGather)
+		needsUpdate = true
+	}
+	if instance.Spec.MustGatherImages.MTC == "" {
+		instance.Spec.MustGatherImages.MTC = r.resolveImage("", "RELATED_IMAGE_MUST_GATHER_MTC", defaultMTCMustGather)
+		needsUpdate = true
+	}
+	if instance.Spec.MustGatherImages.GitOps == "" {
+		instance.Spec.MustGatherImages.GitOps = r.resolveImage("", "RELATED_IMAGE_MUST_GATHER_GITOPS", defaultGitOpsMustGather)
+		needsUpdate = true
+	}
+	if instance.Spec.MustGatherImages.Serverless == "" {
+		instance.Spec.MustGatherImages.Serverless = r.resolveImage("", "RELATED_IMAGE_MUST_GATHER_SERVERLESS", defaultServerlessMustGather)
+		needsUpdate = true
+	}
 
 	if instance.Spec.ClusterDomain == "" {
 		detected, err := r.detectClusterDomain(ctx)
@@ -149,9 +179,7 @@ func (r *OCPSupportWebReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 
 	appImage := instance.Spec.Image
 	oauthProxyImage := instance.Spec.OAuthProxyImage
-	defaultMGImage := instance.Spec.MustGatherImages.Standard
-	cnvImage := instance.Spec.MustGatherImages.CNV
-	odfImage := instance.Spec.MustGatherImages.ODF
+	mgImages := instance.Spec.MustGatherImages
 	clusterDomain := instance.Spec.ClusterDomain
 
 	ns := instance.Namespace
@@ -176,7 +204,7 @@ func (r *OCPSupportWebReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		return ctrl.Result{}, r.setPhase(ctx, instance, "Failed", fmt.Sprintf("Metrics: %v", err))
 	}
 
-	if err := r.reconcileDeployment(ctx, instance, ns, appImage, oauthProxyImage, clusterDomain, defaultMGImage, cnvImage, odfImage); err != nil {
+	if err := r.reconcileDeployment(ctx, instance, ns, appImage, oauthProxyImage, clusterDomain, mgImages); err != nil {
 		return ctrl.Result{}, r.setPhase(ctx, instance, "Failed", fmt.Sprintf("Deployment: %v", err))
 	}
 
@@ -494,7 +522,7 @@ func (r *OCPSupportWebReconciler) reconcileAppMetrics(ctx context.Context, owner
 	return r.Update(ctx, existingSM)
 }
 
-func (r *OCPSupportWebReconciler) reconcileDeployment(ctx context.Context, owner *supportv1alpha1.OCPSupportWeb, ns, appImage, oauthProxyImage, clusterDomain, defaultMGImage, cnvImage, odfImage string) error {
+func (r *OCPSupportWebReconciler) reconcileDeployment(ctx context.Context, owner *supportv1alpha1.OCPSupportWeb, ns, appImage, oauthProxyImage, clusterDomain string, mgImages *supportv1alpha1.MustGatherImages) error {
 	replicas := int32(1)
 
 	appResources := corev1.ResourceRequirements{
@@ -583,9 +611,16 @@ func (r *OCPSupportWebReconciler) reconcileDeployment(ctx context.Context, owner
 							ImagePullPolicy: corev1.PullAlways,
 							Env: []corev1.EnvVar{
 								{Name: "CLUSTER_DOMAIN", Value: clusterDomain},
-								{Name: "MUST_GATHER_IMAGE_DEFAULT", Value: defaultMGImage},
-								{Name: "MUST_GATHER_IMAGE_CNV", Value: cnvImage},
-								{Name: "MUST_GATHER_IMAGE_ODF", Value: odfImage},
+								{Name: "MUST_GATHER_IMAGE_DEFAULT", Value: mgImages.Standard},
+								{Name: "MUST_GATHER_IMAGE_CNV", Value: mgImages.CNV},
+								{Name: "MUST_GATHER_IMAGE_ODF", Value: mgImages.ODF},
+								{Name: "MUST_GATHER_IMAGE_ACM", Value: mgImages.ACM},
+								{Name: "MUST_GATHER_IMAGE_LOGGING", Value: mgImages.Logging},
+								{Name: "MUST_GATHER_IMAGE_SERVICE_MESH", Value: mgImages.ServiceMesh},
+								{Name: "MUST_GATHER_IMAGE_COMPLIANCE", Value: mgImages.Compliance},
+								{Name: "MUST_GATHER_IMAGE_MTC", Value: mgImages.MTC},
+								{Name: "MUST_GATHER_IMAGE_GITOPS", Value: mgImages.GitOps},
+								{Name: "MUST_GATHER_IMAGE_SERVERLESS", Value: mgImages.Serverless},
 							},
 							Ports: []corev1.ContainerPort{
 								{Name: "http", ContainerPort: 8080},
