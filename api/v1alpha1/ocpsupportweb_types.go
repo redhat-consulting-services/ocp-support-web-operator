@@ -58,6 +58,33 @@ type MustGatherImages struct {
 
 	// +optional
 	Serverless string `json:"serverless,omitempty"`
+
+	// +optional
+	MCE string `json:"mce,omitempty"`
+
+	// +optional
+	NetObserv string `json:"netObserv,omitempty"`
+
+	// +optional
+	LocalStorage string `json:"localStorage,omitempty"`
+
+	// +optional
+	Sandboxed string `json:"sandboxed,omitempty"`
+
+	// +optional
+	NHC string `json:"nhc,omitempty"`
+
+	// +optional
+	NUMA string `json:"numa,omitempty"`
+
+	// +optional
+	PTP string `json:"ptp,omitempty"`
+
+	// +optional
+	SecretsStore string `json:"secretsStore,omitempty"`
+
+	// +optional
+	LVMS string `json:"lvms,omitempty"`
 }
 
 type RouteSpec struct {
