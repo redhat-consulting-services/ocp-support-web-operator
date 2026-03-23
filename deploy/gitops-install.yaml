@@ -10,7 +10,7 @@ metadata:
   namespace: openshift-marketplace
 spec:
   sourceType: grpc
-  image: quay.io/redhat-consulting-services/rh-consulting-catalog:v1.4.0
+  image: quay.io/redhat-consulting-services/rh-consulting-catalog:v1.5.0
   displayName: OCP Support Web Operator
   publisher: Community
   updateStrategy:
@@ -44,7 +44,7 @@ metadata:
   name: ocpsupportweb
   namespace: ocp-support-web
 spec:
-  image: quay.io/redhat-consulting-services/ocp-support-web:v2.1.0
+  image: quay.io/redhat-consulting-services/ocp-support-web:v2.2.0
   resources:
     requests:
       cpu: 50m
