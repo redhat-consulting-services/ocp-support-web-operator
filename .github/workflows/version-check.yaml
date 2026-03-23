@@ -1,0 +1,116 @@
+name: Version Consistency Check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches-ignore: [main]
+
+jobs:
+  check-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check version consistency
+        run: |
+          ERRORS=0
+          CSV="bundle/manifests/ocp-support-web-operator.clusterserviceversion.yaml"
+          MAKEFILE="Makefile"
+          GITOPS="deploy/gitops-install.yaml"
+
+          # 1. Extract the source-of-truth version from Makefile
+          MAKEFILE_VERSION=$(grep -m1 '^VERSION' "$MAKEFILE" | sed 's/.*= *//')
+          echo "Makefile VERSION: $MAKEFILE_VERSION"
+
+          if [ -z "$MAKEFILE_VERSION" ]; then
+            echo "::error::Could not extract VERSION from Makefile"
+            exit 1
+          fi
+
+          # 2. CSV metadata.name must be ocp-support-web-operator.v$VERSION
+          CSV_NAME=$(grep -m1 '^\s*name: ocp-support-web-operator\.v' "$CSV" | sed 's/.*ocp-support-web-operator\.//')
+          EXPECTED_CSV_NAME="v${MAKEFILE_VERSION}"
+          if [ "$CSV_NAME" != "$EXPECTED_CSV_NAME" ]; then
+            echo "::error file=${CSV}::CSV metadata.name has '${CSV_NAME}' but expected '${EXPECTED_CSV_NAME}'"
+            ERRORS=$((ERRORS+1))
+          else
+            echo "OK: CSV name = $CSV_NAME"
+          fi
+
+          # 3. CSV spec.version must match
+          CSV_VERSION=$(grep -m1 '^\s*version:' "$CSV" | awk '{print $2}')
+          if [ "$CSV_VERSION" != "$MAKEFILE_VERSION" ]; then
+            echo "::error file=${CSV}::CSV spec.version is '${CSV_VERSION}' but Makefile has '${MAKEFILE_VERSION}'"
+            ERRORS=$((ERRORS+1))
+          else
+            echo "OK: CSV spec.version = $CSV_VERSION"
+          fi
+
+          # 4. CSV containerImage must reference operator:v$VERSION
+          CSV_CONTAINER_IMG=$(grep -m1 'containerImage:' "$CSV" | awk '{print $2}')
+          EXPECTED_OP_IMG="quay.io/redhat-consulting-services/ocp-support-web-operator:v${MAKEFILE_VERSION}"
+          if [ "$CSV_CONTAINER_IMG" != "$EXPECTED_OP_IMG" ]; then
+            echo "::error file=${CSV}::CSV containerImage is '${CSV_CONTAINER_IMG}' but expected '${EXPECTED_OP_IMG}'"
+            ERRORS=$((ERRORS+1))
+          else
+            echo "OK: CSV containerImage = $CSV_CONTAINER_IMG"
+          fi
+
+          # 5. CSV deployment image must reference operator:v$VERSION
+          CSV_DEPLOY_IMG=$(grep -A1 'name: manager' "$CSV" | grep 'image:' | awk '{print $2}')
+          if [ "$CSV_DEPLOY_IMG" != "$EXPECTED_OP_IMG" ]; then
+            echo "::error file=${CSV}::CSV deployment image is '${CSV_DEPLOY_IMG}' but expected '${EXPECTED_OP_IMG}'"
+            ERRORS=$((ERRORS+1))
+          else
+            echo "OK: CSV deployment image = $CSV_DEPLOY_IMG"
+          fi
+
+          # 6. RELATED_IMAGE_APP must reference app:v$VERSION
+          RELATED_APP=$(grep -A1 'RELATED_IMAGE_APP' "$CSV" | grep 'value:' | head -1 | awk '{print $2}')
+          EXPECTED_APP_IMG="quay.io/redhat-consulting-services/ocp-support-web:v${MAKEFILE_VERSION}"
+          if [ "$RELATED_APP" != "$EXPECTED_APP_IMG" ]; then
+            echo "::error file=${CSV}::RELATED_IMAGE_APP is '${RELATED_APP}' but expected '${EXPECTED_APP_IMG}'"
+            ERRORS=$((ERRORS+1))
+          else
+            echo "OK: RELATED_IMAGE_APP = $RELATED_APP"
+          fi
+
+          # 7. gitops-install.yaml app image must match
+          if [ -f "$GITOPS" ]; then
+            GITOPS_APP_IMG=$(grep 'image:.*ocp-support-web:' "$GITOPS" | grep -v operator | grep -v catalog | awk '{print $2}')
+            if [ "$GITOPS_APP_IMG" != "$EXPECTED_APP_IMG" ]; then
+              echo "::error file=${GITOPS}::gitops-install app image is '${GITOPS_APP_IMG}' but expected '${EXPECTED_APP_IMG}'"
+              ERRORS=$((ERRORS+1))
+            else
+              echo "OK: gitops-install app image = $GITOPS_APP_IMG"
+            fi
+
+            # 8. gitops-install.yaml catalog image version should be >= operator version
+            GITOPS_CATALOG_IMG=$(grep 'image:.*rh-consulting-catalog:' "$GITOPS" | awk '{print $2}')
+            if [ -n "$GITOPS_CATALOG_IMG" ]; then
+              echo "OK: gitops-install catalog image = $GITOPS_CATALOG_IMG (manual check — must be >= operator version)"
+            else
+              echo "::warning file=${GITOPS}::Could not find catalog image in gitops-install.yaml"
+            fi
+          fi
+
+          # Summary
+          echo ""
+          if [ $ERRORS -gt 0 ]; then
+            echo "::error::Found $ERRORS version inconsistencies. Update all version references to match Makefile VERSION=$MAKEFILE_VERSION"
+            echo ""
+            echo "Files to update:"
+            echo "  1. Makefile              -> VERSION ?= X.Y.Z"
+            echo "  2. CSV metadata.name     -> ocp-support-web-operator.vX.Y.Z"
+            echo "  3. CSV spec.version      -> X.Y.Z"
+            echo "  4. CSV containerImage    -> ...operator:vX.Y.Z"
+            echo "  5. CSV deployment image  -> ...operator:vX.Y.Z"
+            echo "  6. CSV RELATED_IMAGE_APP -> ...ocp-support-web:vX.Y.Z"
+            echo "  7. deploy/gitops-install -> ...ocp-support-web:vX.Y.Z"
+            echo ""
+            echo "Tip: run 'make resolve-digests' after updating VERSION in the Makefile"
+            exit 1
+          else
+            echo "All version references are consistent (v${MAKEFILE_VERSION})"
+          fi
