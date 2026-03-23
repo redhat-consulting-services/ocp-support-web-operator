@@ -70,6 +70,27 @@ spec:
                     odf:
                       description: OpenShift Data Foundation (ODF) must-gather image.
                       type: string
+                    acm:
+                      description: Advanced Cluster Management (ACM) must-gather image. Auto-detected from installed ACM version if not set.
+                      type: string
+                    logging:
+                      description: OpenShift Logging must-gather image.
+                      type: string
+                    serviceMesh:
+                      description: OpenShift Service Mesh must-gather image.
+                      type: string
+                    compliance:
+                      description: Compliance Operator must-gather image.
+                      type: string
+                    mtc:
+                      description: Migration Toolkit for Containers (MTC) must-gather image.
+                      type: string
+                    gitops:
+                      description: OpenShift GitOps must-gather image.
+                      type: string
+                    serverless:
+                      description: OpenShift Serverless must-gather image.
+                      type: string
                 clusterDomain:
                   description: >-
                     Cluster apps domain (e.g. apps.mycluster.example.com).

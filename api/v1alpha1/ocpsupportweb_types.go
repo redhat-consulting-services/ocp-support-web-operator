@@ -37,6 +37,27 @@ type MustGatherImages struct {
 
 	// +optional
 	ODF string `json:"odf,omitempty"`
+
+	// +optional
+	ACM string `json:"acm,omitempty"`
+
+	// +optional
+	Logging string `json:"logging,omitempty"`
+
+	// +optional
+	ServiceMesh string `json:"serviceMesh,omitempty"`
+
+	// +optional
+	Compliance string `json:"compliance,omitempty"`
+
+	// +optional
+	MTC string `json:"mtc,omitempty"`
+
+	// +optional
+	GitOps string `json:"gitops,omitempty"`
+
+	// +optional
+	Serverless string `json:"serverless,omitempty"`
 }
 
 type RouteSpec struct {
