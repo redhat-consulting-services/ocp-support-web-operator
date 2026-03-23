@@ -91,6 +91,33 @@ spec:
                     serverless:
                       description: OpenShift Serverless must-gather image.
                       type: string
+                    mce:
+                      description: Multicluster Engine (MCE) must-gather image. Auto-detected from installed MCE version if not set.
+                      type: string
+                    netObserv:
+                      description: Network Observability must-gather image.
+                      type: string
+                    localStorage:
+                      description: Local Storage Operator must-gather image.
+                      type: string
+                    sandboxed:
+                      description: OpenShift Sandboxed Containers must-gather image.
+                      type: string
+                    nhc:
+                      description: Node Health Check must-gather image.
+                      type: string
+                    numa:
+                      description: NUMA Resources Operator must-gather image.
+                      type: string
+                    ptp:
+                      description: PTP Operator must-gather image.
+                      type: string
+                    secretsStore:
+                      description: Secrets Store CSI Driver must-gather image.
+                      type: string
+                    lvms:
+                      description: LVM Storage must-gather image.
+                      type: string
                 clusterDomain:
                   description: >-
                     Cluster apps domain (e.g. apps.mycluster.example.com).
