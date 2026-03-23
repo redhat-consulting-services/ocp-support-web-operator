@@ -31,11 +31,10 @@ const (
 	finalizerName = "support.openshift.io/finalizer"
 	appName       = "ocp-support-web"
 
-	defaultOAuthProxyImage          = "registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest"
-	defaultStandardMustGather       = "registry.redhat.io/openshift4/ose-must-gather-rhel9:latest"
-	defaultCNVMustGather            = "registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0"
-	defaultODFMustGather            = "registry.redhat.io/odf4/ocs-must-gather-rhel9:latest"
-	defaultLoggingMustGather    = "registry.redhat.io/openshift-logging/cluster-logging-must-gather-rhel9:latest"
+	consoleLinkIcon = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoEAYAAADcbmQuAAAAIGNIUk0AAHomAACAhAAA+gAAAIDoAAB1MAAA6mAAADqYAAAXcJy6UTwAAAAGYktHRAAAAAAAAPlDu38AAAAJcEhZcwAAAGAAAABgAPBrQs8AAAAHdElNRQfqAxcLIyKW+V7WAAAJC0lEQVRo3u2ae2xUVR7HPzN37nRm2lumdDpTWloerYDGALI8RCVWSHADLiRGSQhVwLBUTVmkBJuogBCLPAzCSgSqkQBdRCQu8ohLEGPU6j9ufIBLSLG0lZZ2pu28nOm87/5xe51iO9AplFbD55+mc37n3PP73nN+95zzO3CHO9yhC/v/DTBmzEEjwIkTVY8CnDlzoBng3nsHun+Djn0ygNl88EuAzZurRgIEAgcPAsjyb3//BxAKHQwC7N17aDmAxTLQ/dfc7ge+CoBWW1ACUFzMPIBt22gHsFpVu4wMkyklJV7P6fT7g8EuDZUDtLfzL4CNG1McALt2LVgAEI3+6QQ8KAMUFXEcYMcOPAATJqjloqjTCQKMHm21ShJkZUmSyRSv73L5/YEA1NRcvep2QzAYiVwjUxHAhQvyUwCrVj39OcDp039YAd8/DZCXF90HUFEht6OMuKcANBpN55Nzc4cOTU2FvLzMTEkCQdBqtdrE7cZishyLQWOj0+n3Q0NDa6vXC7Isy7LcxXA5wMmT2ncBVq5ctAigtnbQCrh3L4DJZFoO8OKLfAFQXk4DgMGg2mVmpqUZDMpIGzIEUlJEURD6/txQKBKJRKC21uHweqG11ePp6Ohi8JNipTkNsGcPSwHWri3+B4DHc7N+97nrytvWaAoKAJ58Uj8d4PhxTgPMn48bQKczGBSBxo3Lzc3IiI80nU4QrjfSeu1A54i1WCTJaISMjNTUlBTwegOBYBDCGdGoLAsC0wGmTVM8XrLk8Z8AvN4JToDvvvu8i1fJkPQIPPAiwOTJmv+ixLIlAA8+qJZrtcr0zMuzWCQJcnMzMkwmEEWbbdgwMJtLS8vKwGCYPPn++0GjEUVRhHC4rq62Fny+kyePHQOf79SpY8dAlpURliyxmCJGS4vH4/NBXZ3d7vFANKqWdPI3gG+/1bgBXniheARAdfUtE/D9ZwByciK7AdavV4L/smX8R5FLtbNYJMlggFGjbDZlagqCIIAg2GzZ2ZCTc+TIqVPx/29EMHj+/A8/QGtrWdnzz0M43NBQV5e8kCqhkPLRqatzONxusNs9nkCgi0HncklTC3D0qEYEWLNm0QWA+vo+C6iuuzgCsHy5+rvRqNcLAhQUKIKZzSZTPNLFycravn33bkhNnTNn3rzkHY9GHQ67HZqbi4sffxzC4fr6y5f7LqSK19vREQrBpUstLS4X+HzB4DUjfQFAZeVTKQAlJYnaSToKZWebzSYTTJo0cqTNllg4rVaSJAlMptmz58zpXh4O//xzTQ243ZWVb70F4XBt7aVL3e0EISvLagWrdc+e/ftBozEYjMabF1CSjEa9HiZOHDHCao37lSxJC5iaajCIYteFSM+IYkHBmDGg0eh0Ol33crt95cqSEnA6t2/fvBmuXn3iiTlzIBD45puvvuqpvVGjCgpgyJCSkhUrbl5AFdUP1a9+F7DXDWtNpuu90VjM63W7u/7v9/t84HCUlT33HESjra12O8hyIBAIgMu1e/fOncqI3bWrv3qdPLpb0EaPRCJ2u92euNxgmDRpyhTw+T755MSJ+O/RqNPZ3g52e2npsmXxGBiJNDb+8stAy9WdfhuB4XBtbU0NRKNtba2t3cvT05cs6Rqa9fq77ho3Dmy2d96pqgKL5bXXtm0DQbBYBv7IIDH9JiDEYrEY+P1nz/a0I9Xp8vLy80EUR48uKIDs7MOHP/4YjMYZMx55BESxsHDsWLBYXn99x47EsXSg6UcBFTyed999+22Q5WAwGASv98iRqipoapo7t6gIYjG32+MBrbbnr6sojh5dWAiSVFy8dOlAyzUAAqoL4CtXZs6cNg3a2tatKy+Px7potK3N4QCv9+jRQ4cSt2M2l5auXq1M6fih18CT9KRwuXy+jg4QBI0muS2Wx9P1q/t72ts3bHjpJRg//tFHH3sMdDqzOSMjXq7VpqVJEqSklJSUlkJdXXn5ypW3TgiXy+cLh5Ov1+8jsLdEIi6X0wlNTTt2bNmS2M5qXbRo6VJITR0//r77BrrXg0hAlZaW997bswc6Oi5evHChxy5rtVrIz9+4cetWuPGSvn8ZdAKqpy8NDevXl5cntpOkqVOnT4ehQ+fOnT9/4Po76ARUcbu/+OKzz8Dl6nkZpJKf/+qrmzeDVms09mUve7MMWgFVGhrWrl2zBmQ5FLomqdSJXp+TM3w4ZGff2j1ybxn0AgYCykFrS8u+fZWVie1yclasWL0a9Prc3Ly829e/pAUMBsPhWExJ4ty+bkJj4/btmzZBOGy3t7T04EjnFB45csuWnTvh7ruPHTtzBqZMqa93OsFme+aZZ5/tXk/1Q/Wr3wX89ddAIBKBy5cdDr8fPJ6Ojr4cuSdLNOr1er3Q2PjGGxUVie3M5pkzZ8+Of2TUlEF+/rp1FRXxKe/zBYPqCbXfH/frlguoew5gwwb1hJa/AsRikUg0KsvQ3OxyBYNw5UpbWyCg5Gv78iZ7S1vbRx998AGEwy0tzc29r6fR6PUpKeD35+YWFkJjY3t7IADhsOLHb0f6GwA+/FC+G+B6r6qz3WQduFFSSV2TDRmSmiqKSq5EFOPJpr6i7kzuuef48bNnwWAoLBwzpvf16+sPHz58GKqrFy9evBhisVAoFLr5pFLSU/jprcoDiz8FmDFDiSALFvAXgIYGNTKqW6O6Oru9o+Pmp7okTZ36wAO9F87tPn/+3Dn49NNZs2bNgi+/XLhw4UKI7QyFQqGmJuWOSUnJz2aAadOSFU7ltifW1WSU1ZqertcrifXe5IcFIT09PR0mTKiu/vFH0OkyM7ueE4ZC7e1tbfD996+8snYt1NRUVlZWgnw+Go1G+y+x3m+boKp/AgwfztcAmzYlutohSUajTgdZWYqggqDVXm+qp6U99FBREQwbVlb28svQ3Fxd/fXXcO5cRUVFBYRCTqfT+Qe82nEjDmwFePhhzUmU2Pl3gIkT1XKtVhEuMzMtTRSVGwZdkzxqCHA4PJ5QqIcE+Z/tclEiul1vawbYupUnAGw21c5guHZqBwK/W6cNkuttA86dC5a3mKocgLFjZTPAm2/+1lEXwKpVxU0AFy8OdD/vcIfBwf8BpLfnjwVxaAQAAAAldEVYdGRhdGU6Y3JlYXRlADIwMjYtMDMtMjNUMTE6MjE6MjgrMDA6MDCmMj34AAAAJXRFWHRkYXRlOm1vZGlmeQAyMDI2LTAzLTE5VDEyOjI3OjQ5KzAwOjAwoIp6VgAAACh0RVh0ZGF0ZTp0aW1lc3RhbXAAMjAyNi0wMy0yM1QxMTozNTozNCswMDowMEMVscsAAAAASUVORK5CYII=`
+
+	defaultOAuthProxyImage      = "registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest"
+	defaultStandardMustGather   = "registry.redhat.io/openshift4/ose-must-gather-rhel9:latest"
 	defaultComplianceMustGather = "registry.redhat.io/compliance/openshift-compliance-must-gather-rhel8:latest"
 )
 
@@ -116,24 +115,25 @@ func (r *OCPSupportWebReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		needsUpdate = true
 	}
 	if instance.Spec.MustGatherImages.CNV == "" {
-		cnv := defaultCNVMustGather
 		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_CNV"]; v != "" {
-			cnv = v
+			instance.Spec.MustGatherImages.CNV = v
+			needsUpdate = true
 		}
-		instance.Spec.MustGatherImages.CNV = cnv
-		needsUpdate = true
+		// No default — app auto-detects version from installed CSV
 	}
 	if instance.Spec.MustGatherImages.ODF == "" {
-		odf := defaultODFMustGather
 		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_ODF"]; v != "" {
-			odf = v
+			instance.Spec.MustGatherImages.ODF = v
+			needsUpdate = true
 		}
-		instance.Spec.MustGatherImages.ODF = odf
-		needsUpdate = true
+		// No default — app auto-detects version from installed CSV
 	}
 	if instance.Spec.MustGatherImages.Logging == "" {
-		instance.Spec.MustGatherImages.Logging = r.resolveImage("", "RELATED_IMAGE_MUST_GATHER_LOGGING", defaultLoggingMustGather)
-		needsUpdate = true
+		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_LOGGING"]; v != "" {
+			instance.Spec.MustGatherImages.Logging = v
+			needsUpdate = true
+		}
+		// No default — app auto-detects version from installed CSV
 	}
 	if instance.Spec.MustGatherImages.ServiceMesh == "" {
 		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_SERVICE_MESH"]; v != "" {
@@ -166,6 +166,60 @@ func (r *OCPSupportWebReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 			needsUpdate = true
 		}
 		// No default — app auto-detects version from installed CSV
+	}
+	if instance.Spec.MustGatherImages.MCE == "" {
+		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_MCE"]; v != "" {
+			instance.Spec.MustGatherImages.MCE = v
+			needsUpdate = true
+		}
+		// No default — app auto-detects version from installed CSV
+		// and uses rhel9 image (must-gather-rhel9) for versions >= 2.7
+	}
+	if instance.Spec.MustGatherImages.NetObserv == "" {
+		instance.Spec.MustGatherImages.NetObserv = r.resolveImage("", "RELATED_IMAGE_MUST_GATHER_NETOBSERV", "quay.io/netobserv/must-gather")
+		needsUpdate = true
+	}
+	if instance.Spec.MustGatherImages.LocalStorage == "" {
+		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_LOCAL_STORAGE"]; v != "" {
+			instance.Spec.MustGatherImages.LocalStorage = v
+			needsUpdate = true
+		}
+	}
+	if instance.Spec.MustGatherImages.Sandboxed == "" {
+		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_SANDBOXED"]; v != "" {
+			instance.Spec.MustGatherImages.Sandboxed = v
+			needsUpdate = true
+		}
+	}
+	if instance.Spec.MustGatherImages.NHC == "" {
+		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_NHC"]; v != "" {
+			instance.Spec.MustGatherImages.NHC = v
+			needsUpdate = true
+		}
+	}
+	if instance.Spec.MustGatherImages.NUMA == "" {
+		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_NUMA"]; v != "" {
+			instance.Spec.MustGatherImages.NUMA = v
+			needsUpdate = true
+		}
+	}
+	if instance.Spec.MustGatherImages.PTP == "" {
+		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_PTP"]; v != "" {
+			instance.Spec.MustGatherImages.PTP = v
+			needsUpdate = true
+		}
+	}
+	if instance.Spec.MustGatherImages.SecretsStore == "" {
+		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_SECRETS_STORE"]; v != "" {
+			instance.Spec.MustGatherImages.SecretsStore = v
+			needsUpdate = true
+		}
+	}
+	if instance.Spec.MustGatherImages.LVMS == "" {
+		if v := r.RelatedImages["RELATED_IMAGE_MUST_GATHER_LVMS"]; v != "" {
+			instance.Spec.MustGatherImages.LVMS = v
+			needsUpdate = true
+		}
 	}
 
 	if instance.Spec.ClusterDomain == "" {
@@ -219,6 +273,12 @@ func (r *OCPSupportWebReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	routeURL, routeHost, err := r.reconcileRoute(ctx, instance, ns)
 	if err != nil {
 		return ctrl.Result{}, r.setPhase(ctx, instance, "Failed", fmt.Sprintf("Route: %v", err))
+	}
+
+	if routeURL != "" {
+		if err := r.reconcileConsoleLink(ctx, routeURL); err != nil {
+			logger.Error(err, "Failed to reconcile ConsoleLink")
+		}
 	}
 
 	if routeHost != "" && (instance.Spec.Route == nil || instance.Spec.Route.Host != routeHost) {
@@ -353,15 +413,34 @@ func (r *OCPSupportWebReconciler) reconcileClusterRoleBinding(ctx context.Contex
 }
 
 func (r *OCPSupportWebReconciler) cleanupClusterResources(ctx context.Context, instance *supportv1alpha1.OCPSupportWeb) error {
+	logger := log.FromContext(ctx)
+
 	crbName := appName + "-" + instance.Namespace
 	crb := &rbacv1.ClusterRoleBinding{}
 	if err := r.Get(ctx, types.NamespacedName{Name: crbName}, crb); err != nil {
-		if errors.IsNotFound(err) {
-			return nil
+		if !errors.IsNotFound(err) {
+			return err
 		}
-		return err
+	} else {
+		if err := r.Delete(ctx, crb); err != nil {
+			return err
+		}
 	}
-	return r.Delete(ctx, crb)
+
+	consoleLinkGVK := schema.GroupVersionKind{Group: "console.openshift.io", Version: "v1", Kind: "ConsoleLink"}
+	cl := &unstructured.Unstructured{}
+	cl.SetGroupVersionKind(consoleLinkGVK)
+	if err := r.Get(ctx, types.NamespacedName{Name: appName}, cl); err != nil {
+		if !errors.IsNotFound(err) {
+			logger.Error(err, "Failed to get ConsoleLink for cleanup")
+		}
+	} else {
+		if err := r.Delete(ctx, cl); err != nil {
+			logger.Error(err, "Failed to delete ConsoleLink")
+		}
+	}
+
+	return nil
 }
 
 func (r *OCPSupportWebReconciler) reconcileCookieSecret(ctx context.Context, owner *supportv1alpha1.OCPSupportWeb, ns string) error {
@@ -536,10 +615,10 @@ func (r *OCPSupportWebReconciler) reconcileDeployment(ctx context.Context, owner
 	appResources := corev1.ResourceRequirements{
 		Requests: corev1.ResourceList{
 			corev1.ResourceCPU:    resource.MustParse("50m"),
-			corev1.ResourceMemory: resource.MustParse("64Mi"),
+			corev1.ResourceMemory: resource.MustParse("128Mi"),
 		},
 		Limits: corev1.ResourceList{
-			corev1.ResourceMemory: resource.MustParse("256Mi"),
+			corev1.ResourceMemory: resource.MustParse("512Mi"),
 		},
 	}
 	if owner.Spec.Resources != nil {
@@ -629,6 +708,15 @@ func (r *OCPSupportWebReconciler) reconcileDeployment(ctx context.Context, owner
 								{Name: "MUST_GATHER_IMAGE_MTC", Value: mgImages.MTC},
 								{Name: "MUST_GATHER_IMAGE_GITOPS", Value: mgImages.GitOps},
 								{Name: "MUST_GATHER_IMAGE_SERVERLESS", Value: mgImages.Serverless},
+								{Name: "MUST_GATHER_IMAGE_MCE", Value: mgImages.MCE},
+								{Name: "MUST_GATHER_IMAGE_NETOBSERV", Value: mgImages.NetObserv},
+								{Name: "MUST_GATHER_IMAGE_LOCAL_STORAGE", Value: mgImages.LocalStorage},
+								{Name: "MUST_GATHER_IMAGE_SANDBOXED", Value: mgImages.Sandboxed},
+								{Name: "MUST_GATHER_IMAGE_NHC", Value: mgImages.NHC},
+								{Name: "MUST_GATHER_IMAGE_NUMA", Value: mgImages.NUMA},
+								{Name: "MUST_GATHER_IMAGE_PTP", Value: mgImages.PTP},
+								{Name: "MUST_GATHER_IMAGE_SECRETS_STORE", Value: mgImages.SecretsStore},
+								{Name: "MUST_GATHER_IMAGE_LVMS", Value: mgImages.LVMS},
 							},
 							Ports: []corev1.ContainerPort{
 								{Name: "http", ContainerPort: 8080},
@@ -757,6 +845,41 @@ func (r *OCPSupportWebReconciler) reconcileRoute(ctx context.Context, owner *sup
 
 	host, _, _ := unstructured.NestedString(existing.Object, "spec", "host")
 	return "https://" + host, host, nil
+}
+
+func (r *OCPSupportWebReconciler) reconcileConsoleLink(ctx context.Context, routeURL string) error {
+	consoleLinkGVK := schema.GroupVersionKind{Group: "console.openshift.io", Version: "v1", Kind: "ConsoleLink"}
+	linkName := appName
+
+	desired := &unstructured.Unstructured{}
+	desired.SetGroupVersionKind(consoleLinkGVK)
+	desired.SetName(linkName)
+	desired.Object["spec"] = map[string]interface{}{
+		"href":     routeURL,
+		"location": "ApplicationMenu",
+		"text":     "Support Web",
+		"applicationMenu": map[string]interface{}{
+			"section":  "Support Web",
+			"imageURL": consoleLinkIcon,
+		},
+	}
+
+	existing := &unstructured.Unstructured{}
+	existing.SetGroupVersionKind(consoleLinkGVK)
+	err := r.Get(ctx, types.NamespacedName{Name: linkName}, existing)
+	if errors.IsNotFound(err) {
+		return r.Create(ctx, desired)
+	}
+	if err != nil {
+		return err
+	}
+
+	existingHref, _, _ := unstructured.NestedString(existing.Object, "spec", "href")
+	if existingHref != routeURL {
+		existing.Object["spec"] = desired.Object["spec"]
+		return r.Update(ctx, existing)
+	}
+	return nil
 }
 
 // isSameRepo returns true if both images share the same repository

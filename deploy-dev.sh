@@ -170,7 +170,7 @@ spec:
       cpu: 50m
       memory: 64Mi
     limits:
-      memory: 256Mi
+      memory: 512Mi
 EOF
 
 echo "--- Waiting for application deployment..."

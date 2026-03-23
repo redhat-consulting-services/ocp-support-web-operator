@@ -67,7 +67,7 @@ spec:
       cpu: 50m
       memory: 64Mi
     limits:
-      memory: 256Mi
+      memory: 512Mi
 ```
 
 Check status:
@@ -89,7 +89,7 @@ The `URL` column shows the route where the application is accessible.
 | `spec.mustGatherImages.odf` | ODF must-gather image | `registry.redhat.io/odf4/ocs-must-gather-rhel9:latest` |
 | `spec.clusterDomain` | Cluster apps domain | Auto-detected from `Ingress/cluster` |
 | `spec.route.host` | Custom route hostname | Auto-generated |
-| `spec.resources` | App container resource requirements | 50m CPU / 64Mi-256Mi memory |
+| `spec.resources` | App container resource requirements | 50m CPU / 128Mi-512Mi memory |
 | `spec.oauthProxyResources` | OAuth proxy resource requirements | 10m CPU / 32Mi-64Mi memory |
 
 ## Disconnected / Air-Gapped Environments
