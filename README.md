@@ -110,7 +110,7 @@ For disconnected environments, set `spec.image` to the mirrored location of the 
 The application image can also be used directly as a must-gather image with `oc adm must-gather`:
 
 ```bash
-oc adm must-gather --image=quay.io/redhat-consulting-services/ocp-support-web:v2.2.0
+oc adm must-gather --image=quay.io/redhat-consulting-services/ocp-support-web:v3.0.0
 ```
 
 This auto-detects installed operators and collects diagnostics for all of them using native Go API calls — no operator-specific must-gather images required.
