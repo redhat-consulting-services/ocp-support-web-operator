@@ -7,13 +7,14 @@ A Kubernetes operator that deploys and manages the [OCP Support Web](https://git
 The operator manages the full lifecycle of the OCP Support Web application:
 
 - Creates a ServiceAccount with OAuth redirect annotations
-- Binds cluster-admin to the app ServiceAccount (required for must-gather and etcd operations)
+- Creates a scoped ClusterRole for the app ServiceAccount with least-privilege access
 - Generates and stores an OAuth cookie secret
 - Deploys the application with an OpenShift OAuth proxy sidecar
 - Creates a Route with TLS re-encryption
 - Sets up a ServiceMonitor for Prometheus metrics scraping
 - Auto-detects the cluster apps domain from `Ingress/cluster`
-- Cleans up cluster-scoped resources (ClusterRoleBinding) on CR deletion via a finalizer
+- Creates a `gather-common` ConfigMap for customizing gather definitions
+- Cleans up cluster-scoped resources (ClusterRole, ClusterRoleBinding) on CR deletion via a finalizer
 
 ## Prerequisites
 
@@ -82,27 +83,43 @@ The `URL` column shows the route where the application is accessible.
 
 | Field | Description | Default |
 |-------|-------------|---------|
-| `spec.image` | Application container image | `RELATED_IMAGE_APP` env var |
+| `spec.image` | Application container image (web UI, ACM agents, must-gather) | `RELATED_IMAGE_APP` env var |
 | `spec.oauthProxyImage` | OAuth proxy sidecar image | `registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest` |
-| `spec.mustGatherImages.standard` | Standard must-gather image | Cluster release payload |
-| `spec.mustGatherImages.cnv` | CNV must-gather image | `registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0` |
-| `spec.mustGatherImages.odf` | ODF must-gather image | `registry.redhat.io/odf4/ocs-must-gather-rhel9:latest` |
 | `spec.clusterDomain` | Cluster apps domain | Auto-detected from `Ingress/cluster` |
 | `spec.route.host` | Custom route hostname | Auto-generated |
 | `spec.resources` | App container resource requirements | 50m CPU / 128Mi-512Mi memory |
 | `spec.oauthProxyResources` | OAuth proxy resource requirements | 10m CPU / 32Mi-64Mi memory |
+| `spec.allowedGroups` | OpenShift groups allowed to access the app | `["cluster-admins"]` |
 
 ## Disconnected / Air-Gapped Environments
 
-All container images are configurable. The operator supports the OLM `RELATED_IMAGE_*` convention for automatic image mirroring via `ImageContentSourcePolicy`:
+Container images are configurable in the CR spec:
+
+- `spec.image` — the application image (used for the web UI, ACM remote agents, and standalone must-gather)
+- `spec.oauthProxyImage` — the OAuth proxy sidecar
+
+The operator supports the OLM `RELATED_IMAGE_*` convention for automatic image mirroring via `ImageContentSourcePolicy`:
 
 - `RELATED_IMAGE_APP` — application image
 - `RELATED_IMAGE_OAUTH_PROXY` — OAuth proxy
-- `RELATED_IMAGE_MUST_GATHER_STANDARD` — standard must-gather
-- `RELATED_IMAGE_MUST_GATHER_CNV` — CNV must-gather
-- `RELATED_IMAGE_MUST_GATHER_ODF` — ODF must-gather
 
-Override in the CR spec for direct configuration.
+For disconnected environments, set `spec.image` to the mirrored location of the application image in your internal registry.
+
+## Standalone Must-Gather
+
+The application image can also be used directly as a must-gather image with `oc adm must-gather`:
+
+```bash
+oc adm must-gather --image=quay.io/redhat-consulting-services/ocp-support-web:v2.2.0
+```
+
+This auto-detects installed operators and collects diagnostics for all of them using native Go API calls — no operator-specific must-gather images required.
+
+## ConfigMap-Driven Gather Configuration
+
+The operator creates a `gather-common` ConfigMap in the application namespace. Users can edit this ConfigMap to add custom resources, pod exec commands, node commands, and log specifications. Changes take effect on the next gather request without restarting the application.
+
+See the [application README](https://github.com/redhat-consulting-services/ocp-support-web#configmap-driven-gather-configuration) for the full ConfigMap format and examples.
 
 ## Development
 

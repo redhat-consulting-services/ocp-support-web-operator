@@ -1,4 +1,4 @@
-VERSION ?= 2.2.0
+VERSION ?= 3.0.0
 OPERATOR_IMG ?= quay.io/redhat-consulting-services/ocp-support-web-operator:v$(VERSION)
 BUNDLE_IMG ?= quay.io/redhat-consulting-services/ocp-support-web-operator-bundle:v$(VERSION)
 CATALOG_IMG ?= quay.io/redhat-consulting-services/rh-consulting-catalog:v$(VERSION)

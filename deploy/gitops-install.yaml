@@ -44,7 +44,7 @@ metadata:
   name: ocpsupportweb
   namespace: ocp-support-web
 spec:
-  image: quay.io/redhat-consulting-services/ocp-support-web:v2.2.0
+  image: quay.io/redhat-consulting-services/ocp-support-web:v3.0.0
   resources:
     requests:
       cpu: 50m

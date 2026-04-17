@@ -1,7 +1,7 @@
 apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
-  name: ocp-support-web-operator.v2.2.0
+  name: ocp-support-web-operator.v3.0.0
   namespace: placeholder
   annotations:
     alm-examples: |-
@@ -13,7 +13,7 @@ metadata:
             "name": "ocpsupportweb"
           },
           "spec": {
-            "image": "quay.io/redhat-consulting-services/ocp-support-web:v2.2.0",
+            "image": "quay.io/redhat-consulting-services/ocp-support-web:v3.0.0",
             "resources": {
               "requests": {
                 "cpu": "50m",
@@ -28,13 +28,13 @@ metadata:
       ]
     capabilities: Full Lifecycle
     categories: Developer Tools
-    containerImage: quay.io/redhat-consulting-services/ocp-support-web-operator:v2.2.0
+    containerImage: quay.io/redhat-consulting-services/ocp-support-web-operator:v3.0.0
     description: >-
-      OpenShift Support Tools in a web app. Expose the most common tools used
-      for Red Hat support cases through a web application — must-gather, etcd
-      backup, etcd diagnostics, and cluster status — each ready to download and
-      ship from your laptop. This is a community operator and is not supported
-      by Red Hat.
+      OpenShift Support Tools in a web app. Native Go-based cluster diagnostics
+      with ConfigMap-driven gather definitions, etcd backup, etcd diagnostics,
+      cluster status, and ACM multi-cluster support — each ready to download
+      from your browser. This is a community operator and is not supported by
+      Red Hat.
     repository: https://github.com/redhat-consulting-services/ocp-support-web-operator
     support: Community
     operatorframework.io/suggested-namespace: ocp-support-web
@@ -43,21 +43,26 @@ spec:
   description: |
     ## OCP Support Web Operator
 
-    OpenShift Support Tools in a web app. Expose the most common tools used for
-    Red Hat support cases through a web application — must-gather, etcd backup,
-    etcd diagnostics, and cluster status — each ready to download and ship from
-    your laptop.
+    OpenShift Support Tools in a web app. Native Go-based cluster diagnostics
+    with ConfigMap-driven gather definitions, etcd backup, etcd diagnostics,
+    cluster status, and ACM multi-cluster support — each ready to download
+    from your browser.
 
     **This is a community operator. It is not supported by Red Hat.**
 
     ### Features
 
-    - **Must-Gather**: Run must-gather for Default, Virtualization (CNV), ODF,
-      ACM, Logging, Service Mesh, Compliance, MTC, GitOps, Serverless, MCE,
-      Network Observability, Local Storage, Sandboxed Containers, Node Health
-      Check, NUMA Resources, PTP, Secrets Store CSI, LVMS, and audit logs.
-      Only installed operators are shown. "Gather All" dynamically collects
-      from all detected operators. Download archives directly from your browser.
+    - **Native Cluster Diagnostics**: Collects cluster resources, pod logs,
+      pod exec commands, and node commands using native Go API calls — no
+      external must-gather images required. Supports 20 operator-specific
+      gather profiles that auto-detect installed operators. "Gather All"
+      dynamically collects from all detected operators.
+    - **ConfigMap-Driven Configuration**: Customize what gets collected via
+      the `gather-common` ConfigMap. Add custom resources, pod exec commands,
+      node commands, and log specifications. Changes take effect on the next
+      gather request — no restart needed.
+    - **ACM Multi-Cluster Support**: Deploy agents to managed clusters via
+      the web UI. Gather diagnostics from remote clusters through ACM.
     - **Etcd Backup**: Create etcd snapshots from master nodes with progress
       tracking and browser download.
     - **Etcd Diagnostics**: Analyze etcd database contents — object sizes,
@@ -79,36 +84,25 @@ spec:
 
     ### Disconnected / Air-Gapped Environments
 
-    Every container image used by the operator and the application is
-    configurable. In the CR spec you can override:
+    Container image references are configurable in the CR spec:
 
-    - `spec.image` — the application image
+    - `spec.image` — the application image (used for web UI, ACM agents,
+      and standalone must-gather)
     - `spec.oauthProxyImage` — the OAuth proxy sidecar
-    - `spec.mustGatherImages.standard` — Default must-gather image
-    - `spec.mustGatherImages.cnv` — Virtualization must-gather image
-    - `spec.mustGatherImages.odf` — ODF must-gather image
-    - `spec.mustGatherImages.acm` — ACM must-gather image
-    - `spec.mustGatherImages.logging` — Logging must-gather image
-    - `spec.mustGatherImages.serviceMesh` — Service Mesh must-gather image
-    - `spec.mustGatherImages.compliance` — Compliance must-gather image
-    - `spec.mustGatherImages.mtc` — MTC must-gather image
-    - `spec.mustGatherImages.gitops` — GitOps must-gather image
-    - `spec.mustGatherImages.serverless` — Serverless must-gather image
-    - `spec.mustGatherImages.mce` — MCE / Hosted Control Planes must-gather image
-    - `spec.mustGatherImages.netObserv` — Network Observability must-gather image
-    - `spec.mustGatherImages.localStorage` — Local Storage must-gather image
-    - `spec.mustGatherImages.sandboxed` — Sandboxed Containers must-gather image
-    - `spec.mustGatherImages.nhc` — Node Health Check must-gather image
-    - `spec.mustGatherImages.numa` — NUMA Resources must-gather image
-    - `spec.mustGatherImages.ptp` — PTP must-gather image
-    - `spec.mustGatherImages.secretsStore` — Secrets Store CSI must-gather image
-    - `spec.mustGatherImages.lvms` — LVMS must-gather image
 
-    Most must-gather images are auto-detected from installed operator CSVs.
-    Only set these for disconnected environments.
+    The operator supports the OLM `RELATED_IMAGE_*` convention for automatic
+    image mirroring via ImageContentSourcePolicy.
 
-    The operator also supports the OLM `RELATED_IMAGE_*` convention for
-    automatic image mirroring via ImageContentSourcePolicy.
+    ### Standalone Must-Gather
+
+    The application image can also be used directly as a must-gather image:
+
+    ```
+    oc adm must-gather --image=<spec.image>
+    ```
+
+    This auto-detects installed operators and collects diagnostics for all
+    of them using native Go API calls.
 
     ### Upgrades
 
@@ -119,8 +113,8 @@ spec:
       operator version (which updates the default RELATED_IMAGE_APP)
     - Rolling updates ensure zero downtime during upgrades
   maturity: alpha
-  version: 2.2.0
-  replaces: ocp-support-web-operator.v2.1.0
+  version: 3.0.0
+  replaces: ocp-support-web-operator.v2.2.0
   minKubeVersion: 1.25.0
 
   keywords:
@@ -172,18 +166,14 @@ spec:
               resources: ["ocpsupportwebs/finalizers"]
               verbs: ["update"]
             - apiGroups: [""]
-              resources: ["serviceaccounts", "services", "secrets"]
+              resources: ["serviceaccounts", "services", "secrets", "configmaps"]
               verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
             - apiGroups: ["apps"]
               resources: ["deployments"]
               verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
             - apiGroups: ["rbac.authorization.k8s.io"]
-              resources: ["clusterrolebindings"]
-              verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
-            - apiGroups: ["rbac.authorization.k8s.io"]
-              resources: ["clusterroles"]
-              verbs: ["bind"]
-              resourceNames: ["cluster-admin"]
+              resources: ["clusterrolebindings", "clusterroles"]
+              verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "escalate"]
             - apiGroups: ["route.openshift.io"]
               resources: ["routes"]
               verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
@@ -216,7 +206,7 @@ spec:
                   runAsNonRoot: true
                 containers:
                   - name: manager
-                    image: quay.io/redhat-consulting-services/ocp-support-web-operator:v2.2.0
+                    image: quay.io/redhat-consulting-services/ocp-support-web-operator:v3.0.0
                     command: ["/manager"]
                     env:
                       - name: WATCH_NAMESPACE
@@ -224,45 +214,9 @@ spec:
                           fieldRef:
                             fieldPath: metadata.namespace
                       - name: RELATED_IMAGE_APP
-                        value: quay.io/redhat-consulting-services/ocp-support-web:v2.2.0
+                        value: quay.io/redhat-consulting-services/ocp-support-web:v3.0.0
                       - name: RELATED_IMAGE_OAUTH_PROXY
                         value: registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest
-                      - name: RELATED_IMAGE_MUST_GATHER_STANDARD
-                        value: registry.redhat.io/openshift4/ose-must-gather-rhel9:latest
-                      - name: RELATED_IMAGE_MUST_GATHER_CNV
-                        value: ""
-                      - name: RELATED_IMAGE_MUST_GATHER_ODF
-                        value: ""
-                      - name: RELATED_IMAGE_MUST_GATHER_LOGGING
-                        value: ""
-                      - name: RELATED_IMAGE_MUST_GATHER_SERVICE_MESH
-                        value: ""
-                      - name: RELATED_IMAGE_MUST_GATHER_COMPLIANCE
-                        value: registry.redhat.io/compliance/openshift-compliance-must-gather-rhel8:latest
-                      - name: RELATED_IMAGE_MUST_GATHER_MTC
-                        value: ""
-                      - name: RELATED_IMAGE_MUST_GATHER_GITOPS
-                        value: ""
-                      - name: RELATED_IMAGE_MUST_GATHER_SERVERLESS
-                        value: ""
-                      - name: RELATED_IMAGE_MUST_GATHER_MCE
-                        value: registry.redhat.io/multicluster-engine/must-gather-rhel8
-                      - name: RELATED_IMAGE_MUST_GATHER_NETOBSERV
-                        value: quay.io/netobserv/must-gather
-                      - name: RELATED_IMAGE_MUST_GATHER_LOCAL_STORAGE
-                        value: ""
-                      - name: RELATED_IMAGE_MUST_GATHER_SANDBOXED
-                        value: ""
-                      - name: RELATED_IMAGE_MUST_GATHER_NHC
-                        value: ""
-                      - name: RELATED_IMAGE_MUST_GATHER_NUMA
-                        value: ""
-                      - name: RELATED_IMAGE_MUST_GATHER_PTP
-                        value: ""
-                      - name: RELATED_IMAGE_MUST_GATHER_SECRETS_STORE
-                        value: ""
-                      - name: RELATED_IMAGE_MUST_GATHER_LVMS
-                        value: ""
                     ports:
                       - containerPort: 8080
                         name: metrics
@@ -305,8 +259,10 @@ spec:
           - path: image
             displayName: Application Image
             description: >-
-              Container image for the OCP Support Web application.
-              Leave empty to use the default version bundled with this operator.
+              Container image for the OCP Support Web application. This same
+              image is used for the web UI, ACM remote agents, and as a
+              standalone must-gather image. For disconnected environments,
+              set this to your mirrored registry location.
             x-descriptors:
               - urn:alm:descriptor:com.tectonic.ui:text
               - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Images
@@ -318,143 +274,6 @@ spec:
             x-descriptors:
               - urn:alm:descriptor:com.tectonic.ui:text
               - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.standard
-            displayName: Standard Must-Gather Image
-            description: >-
-              Standard OpenShift must-gather image. Leave empty to use the cluster
-              release payload's built-in must-gather.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.cnv
-            displayName: CNV Must-Gather Image
-            description: Container image for OpenShift Virtualization must-gather.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.odf
-            displayName: ODF Must-Gather Image
-            description: Container image for ODF (OpenShift Data Foundation) must-gather.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.acm
-            displayName: ACM Must-Gather Image
-            description: >-
-              Container image for Advanced Cluster Management must-gather.
-              Auto-detected from the installed ACM version if not set.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.logging
-            displayName: Logging Must-Gather Image
-            description: Container image for OpenShift Logging must-gather.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.serviceMesh
-            displayName: Service Mesh Must-Gather Image
-            description: Container image for OpenShift Service Mesh must-gather. Leave empty to auto-detect version.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.compliance
-            displayName: Compliance Must-Gather Image
-            description: Container image for Compliance Operator must-gather.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.mtc
-            displayName: MTC Must-Gather Image
-            description: Container image for Migration Toolkit for Containers must-gather. Leave empty to auto-detect version.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.gitops
-            displayName: GitOps Must-Gather Image
-            description: Container image for OpenShift GitOps must-gather. Leave empty to auto-detect version.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.serverless
-            displayName: Serverless Must-Gather Image
-            description: Container image for OpenShift Serverless must-gather. Leave empty to auto-detect version.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.mce
-            displayName: MCE Must-Gather Image
-            description: Container image for Multicluster Engine / Hosted Control Planes must-gather.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.netObserv
-            displayName: Network Observability Must-Gather Image
-            description: Container image for Network Observability must-gather.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.localStorage
-            displayName: Local Storage Must-Gather Image
-            description: Container image for Local Storage Operator must-gather. Leave empty to auto-detect version.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.sandboxed
-            displayName: Sandboxed Containers Must-Gather Image
-            description: Container image for OpenShift Sandboxed Containers must-gather. Leave empty to auto-detect version.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.nhc
-            displayName: Node Health Check Must-Gather Image
-            description: Container image for Workload Availability / Node Health Check must-gather. Leave empty to auto-detect version.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.numa
-            displayName: NUMA Resources Must-Gather Image
-            description: Container image for NUMA Resources Operator must-gather. Leave empty to auto-detect version.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.ptp
-            displayName: PTP Must-Gather Image
-            description: Container image for PTP Operator must-gather. Leave empty to auto-detect version.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.secretsStore
-            displayName: Secrets Store CSI Must-Gather Image
-            description: Container image for Secrets Store CSI Driver Operator must-gather. Leave empty to auto-detect version.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
-              - urn:alm:descriptor:com.tectonic.ui:advanced
-          - path: mustGatherImages.lvms
-            displayName: LVMS Must-Gather Image
-            description: Container image for LVM Storage Operator must-gather. Leave empty to auto-detect version.
-            x-descriptors:
-              - urn:alm:descriptor:com.tectonic.ui:text
-              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Must-Gather Images
               - urn:alm:descriptor:com.tectonic.ui:advanced
           - path: clusterDomain
             displayName: Cluster Domain
@@ -504,14 +323,6 @@ spec:
 
   relatedImages:
     - name: app
-      image: quay.io/redhat-consulting-services/ocp-support-web:v2.2.0
+      image: quay.io/redhat-consulting-services/ocp-support-web:v3.0.0
     - name: oauth-proxy
       image: registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest
-    - name: must-gather-standard
-      image: registry.redhat.io/openshift4/ose-must-gather-rhel9:latest
-    - name: must-gather-compliance
-      image: registry.redhat.io/compliance/openshift-compliance-must-gather-rhel8:latest
-    - name: must-gather-mce
-      image: registry.redhat.io/multicluster-engine/must-gather-rhel8
-    - name: must-gather-netobserv
-      image: quay.io/netobserv/must-gather

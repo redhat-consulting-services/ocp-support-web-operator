@@ -55,69 +55,6 @@ spec:
                     OpenShift OAuth proxy sidecar image. Defaults to
                     registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest.
                   type: string
-                mustGatherImages:
-                  description: Container images for must-gather operations (disconnected support).
-                  type: object
-                  properties:
-                    standard:
-                      description: >-
-                        Standard OpenShift must-gather image. If not set, oc uses
-                        the image from the cluster release payload.
-                      type: string
-                    cnv:
-                      description: OpenShift Virtualization (CNV) must-gather image.
-                      type: string
-                    odf:
-                      description: OpenShift Data Foundation (ODF) must-gather image.
-                      type: string
-                    acm:
-                      description: Advanced Cluster Management (ACM) must-gather image. Auto-detected from installed ACM version if not set.
-                      type: string
-                    logging:
-                      description: OpenShift Logging must-gather image.
-                      type: string
-                    serviceMesh:
-                      description: OpenShift Service Mesh must-gather image.
-                      type: string
-                    compliance:
-                      description: Compliance Operator must-gather image.
-                      type: string
-                    mtc:
-                      description: Migration Toolkit for Containers (MTC) must-gather image.
-                      type: string
-                    gitops:
-                      description: OpenShift GitOps must-gather image.
-                      type: string
-                    serverless:
-                      description: OpenShift Serverless must-gather image.
-                      type: string
-                    mce:
-                      description: Multicluster Engine (MCE) must-gather image. Auto-detected from installed MCE version if not set.
-                      type: string
-                    netObserv:
-                      description: Network Observability must-gather image.
-                      type: string
-                    localStorage:
-                      description: Local Storage Operator must-gather image.
-                      type: string
-                    sandboxed:
-                      description: OpenShift Sandboxed Containers must-gather image.
-                      type: string
-                    nhc:
-                      description: Node Health Check must-gather image.
-                      type: string
-                    numa:
-                      description: NUMA Resources Operator must-gather image.
-                      type: string
-                    ptp:
-                      description: PTP Operator must-gather image.
-                      type: string
-                    secretsStore:
-                      description: Secrets Store CSI Driver must-gather image.
-                      type: string
-                    lvms:
-                      description: LVM Storage must-gather image.
-                      type: string
                 clusterDomain:
                   description: >-
                     Cluster apps domain (e.g. apps.mycluster.example.com).
@@ -166,6 +103,13 @@ spec:
                           - type: string
                         x-kubernetes-int-or-string: true
                       type: object
+                allowedGroups:
+                  description: >-
+                    List of OpenShift groups allowed to access the application.
+                    Enforced by the OAuth proxy. Defaults to ["cluster-admins"].
+                  type: array
+                  items:
+                    type: string
             status:
               description: Observed state of the OCP Support Web deployment.
               type: object

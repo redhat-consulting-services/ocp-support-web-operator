@@ -8,19 +8,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (in *MustGatherImages) DeepCopyInto(out *MustGatherImages) {
-	*out = *in
-}
-
-func (in *MustGatherImages) DeepCopy() *MustGatherImages {
-	if in == nil {
-		return nil
-	}
-	out := new(MustGatherImages)
-	in.DeepCopyInto(out)
-	return out
-}
-
 func (in *RouteSpec) DeepCopyInto(out *RouteSpec) {
 	*out = *in
 }
@@ -36,11 +23,6 @@ func (in *RouteSpec) DeepCopy() *RouteSpec {
 
 func (in *OCPSupportWebSpec) DeepCopyInto(out *OCPSupportWebSpec) {
 	*out = *in
-	if in.MustGatherImages != nil {
-		in, out := &in.MustGatherImages, &out.MustGatherImages
-		*out = new(MustGatherImages)
-		**out = **in
-	}
 	if in.Route != nil {
 		in, out := &in.Route, &out.Route
 		*out = new(RouteSpec)
@@ -55,6 +37,11 @@ func (in *OCPSupportWebSpec) DeepCopyInto(out *OCPSupportWebSpec) {
 		in, out := &in.OAuthProxyResources, &out.OAuthProxyResources
 		*out = new(corev1.ResourceRequirements)
 		(*in).DeepCopyInto(*out)
+	}
+	if in.AllowedGroups != nil {
+		in, out := &in.AllowedGroups, &out.AllowedGroups
+		*out = make([]string, len(*in))
+		copy(*out, *in)
 	}
 }
 
