@@ -137,7 +137,7 @@ spec:
 
   maintainers:
     - name: Kim Borup
-      email: kim@pfy.dk
+      email: kborup@redhat.com
 
   provider:
     name: Community
@@ -183,7 +183,7 @@ spec:
               verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
             - apiGroups: ["rbac.authorization.k8s.io"]
               resources: ["clusterrolebindings", "clusterroles"]
-              verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "escalate"]
+              verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "escalate", "bind"]
             - apiGroups: ["route.openshift.io"]
               resources: ["routes"]
               verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
