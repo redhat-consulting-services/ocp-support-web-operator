@@ -36,12 +36,6 @@ spec:
               value: RELATED_IMAGE_APP_PLACEHOLDER
             - name: RELATED_IMAGE_OAUTH_PROXY
               value: registry.redhat.io/openshift4/ose-oauth-proxy-rhel9:latest
-            - name: RELATED_IMAGE_MUST_GATHER_STANDARD
-              value: registry.redhat.io/openshift4/ose-must-gather-rhel9:latest
-            - name: RELATED_IMAGE_MUST_GATHER_CNV
-              value: registry.redhat.io/container-native-virtualization/cnv-must-gather-rhel9:v4.17.0
-            - name: RELATED_IMAGE_MUST_GATHER_ODF
-              value: registry.redhat.io/odf4/ocs-must-gather-rhel9:latest
           ports:
             - containerPort: 8080
               name: metrics

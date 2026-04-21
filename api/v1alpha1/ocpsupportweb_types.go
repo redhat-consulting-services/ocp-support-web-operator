@@ -10,10 +10,10 @@ type OCPSupportWebSpec struct {
 	Image string `json:"image,omitempty"`
 
 	// +optional
-	OAuthProxyImage string `json:"oauthProxyImage,omitempty"`
+	AgentImage string `json:"agentImage,omitempty"`
 
 	// +optional
-	MustGatherImages *MustGatherImages `json:"mustGatherImages,omitempty"`
+	OAuthProxyImage string `json:"oauthProxyImage,omitempty"`
 
 	// +optional
 	ClusterDomain string `json:"clusterDomain,omitempty"`
@@ -26,65 +26,11 @@ type OCPSupportWebSpec struct {
 
 	// +optional
 	OAuthProxyResources *corev1.ResourceRequirements `json:"oauthProxyResources,omitempty"`
-}
 
-type MustGatherImages struct {
+	// AllowedGroups is a list of OpenShift groups allowed to access the application.
+	// These are enforced by the OAuth proxy. If empty, defaults to ["cluster-admins"].
 	// +optional
-	Standard string `json:"standard,omitempty"`
-
-	// +optional
-	CNV string `json:"cnv,omitempty"`
-
-	// +optional
-	ODF string `json:"odf,omitempty"`
-
-	// +optional
-	ACM string `json:"acm,omitempty"`
-
-	// +optional
-	Logging string `json:"logging,omitempty"`
-
-	// +optional
-	ServiceMesh string `json:"serviceMesh,omitempty"`
-
-	// +optional
-	Compliance string `json:"compliance,omitempty"`
-
-	// +optional
-	MTC string `json:"mtc,omitempty"`
-
-	// +optional
-	GitOps string `json:"gitops,omitempty"`
-
-	// +optional
-	Serverless string `json:"serverless,omitempty"`
-
-	// +optional
-	MCE string `json:"mce,omitempty"`
-
-	// +optional
-	NetObserv string `json:"netObserv,omitempty"`
-
-	// +optional
-	LocalStorage string `json:"localStorage,omitempty"`
-
-	// +optional
-	Sandboxed string `json:"sandboxed,omitempty"`
-
-	// +optional
-	NHC string `json:"nhc,omitempty"`
-
-	// +optional
-	NUMA string `json:"numa,omitempty"`
-
-	// +optional
-	PTP string `json:"ptp,omitempty"`
-
-	// +optional
-	SecretsStore string `json:"secretsStore,omitempty"`
-
-	// +optional
-	LVMS string `json:"lvms,omitempty"`
+	AllowedGroups []string `json:"allowedGroups,omitempty"`
 }
 
 type RouteSpec struct {
