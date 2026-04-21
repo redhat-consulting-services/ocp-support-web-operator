@@ -118,6 +118,10 @@ func (r *OCPSupportWebReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	}
 
 	appImage := instance.Spec.Image
+	agentImage := instance.Spec.AgentImage
+	if agentImage == "" {
+		agentImage = appImage
+	}
 	oauthProxyImage := instance.Spec.OAuthProxyImage
 	clusterDomain := instance.Spec.ClusterDomain
 
@@ -155,7 +159,7 @@ func (r *OCPSupportWebReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		return ctrl.Result{}, r.setPhase(ctx, instance, "Failed", fmt.Sprintf("Metrics: %v", err))
 	}
 
-	if err := r.reconcileDeployment(ctx, instance, ns, appImage, oauthProxyImage, clusterDomain); err != nil {
+	if err := r.reconcileDeployment(ctx, instance, ns, appImage, agentImage, oauthProxyImage, clusterDomain); err != nil {
 		return ctrl.Result{}, r.setPhase(ctx, instance, "Failed", fmt.Sprintf("Deployment: %v", err))
 	}
 
@@ -771,7 +775,7 @@ func (r *OCPSupportWebReconciler) reconcileAppMetrics(ctx context.Context, owner
 	return r.Update(ctx, existingSM)
 }
 
-func (r *OCPSupportWebReconciler) reconcileDeployment(ctx context.Context, owner *supportv1alpha1.OCPSupportWeb, ns, appImage, oauthProxyImage, clusterDomain string) error {
+func (r *OCPSupportWebReconciler) reconcileDeployment(ctx context.Context, owner *supportv1alpha1.OCPSupportWeb, ns, appImage, agentImage, oauthProxyImage, clusterDomain string) error {
 	replicas := int32(1)
 
 	appResources := corev1.ResourceRequirements{
@@ -851,7 +855,7 @@ func (r *OCPSupportWebReconciler) reconcileDeployment(ctx context.Context, owner
 							ImagePullPolicy: corev1.PullAlways,
 							Env: []corev1.EnvVar{
 								{Name: "CLUSTER_DOMAIN", Value: clusterDomain},
-								{Name: "AGENT_IMAGE", Value: appImage},
+								{Name: "AGENT_IMAGE", Value: agentImage},
 							},
 							Ports: []corev1.ContainerPort{
 								{Name: "http", ContainerPort: 8080},

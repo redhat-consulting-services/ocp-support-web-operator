@@ -71,24 +71,34 @@ spec:
     - **Cluster Status**: View cluster health, control plane operators, node
       utilization, top consumers (pods and VMs), ODF status, and etcd member
       health at a glance.
-    - **Data Anonymization**: Optionally obfuscate IPs, MACs, and domain names
-      before sharing diagnostics with support.
+    - **Data Anonymization**: Optionally obfuscate IPs, MACs, domain names,
+      and Kubernetes secret values before sharing diagnostics with support.
     - **Disconnected Support**: All container image references are configurable
       for air-gapped and mirror registry environments.
 
+    - **Connection Resilience**: WebSocket connections automatically reconnect
+      on network interruptions, keeping real-time log streaming reliable
+      during long-running gather operations.
+
     ### Authentication
 
-    Access is restricted to cluster-admin users via the OpenShift OAuth proxy.
-    Only users who can create namespaces (a cluster-admin privilege) are allowed
-    to log in.
+    Access is restricted via the OpenShift OAuth proxy. Access can be
+    granted to specific OpenShift groups using `spec.allowedGroups`
+    (defaults to `cluster-admins`).
 
     ### Disconnected / Air-Gapped Environments
 
     Container image references are configurable in the CR spec:
 
-    - `spec.image` — the application image (used for web UI, ACM agents,
-      and standalone must-gather)
+    - `spec.image` — the application image (used for web UI and standalone
+      must-gather)
+    - `spec.agentImage` — the image for ACM remote gather agents (defaults
+      to `spec.image` if not set)
     - `spec.oauthProxyImage` — the OAuth proxy sidecar
+
+    For per-cluster agent image overrides (useful when managed clusters use
+    different mirror registries), set the `ocp-support-web/agent-image`
+    annotation on the ManagedCluster resource.
 
     The operator supports the OLM `RELATED_IMAGE_*` convention for automatic
     image mirroring via ImageContentSourcePolicy.
@@ -266,6 +276,16 @@ spec:
             x-descriptors:
               - urn:alm:descriptor:com.tectonic.ui:text
               - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Images
+          - path: agentImage
+            displayName: Agent Image
+            description: >-
+              Container image for ACM remote gather agents on managed clusters.
+              Defaults to the application image. Can also be overridden per
+              managed cluster via the ocp-support-web/agent-image annotation.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Images
+              - urn:alm:descriptor:com.tectonic.ui:advanced
           - path: oauthProxyImage
             displayName: OAuth Proxy Image
             description: >-
@@ -304,6 +324,14 @@ spec:
               - urn:alm:descriptor:com.tectonic.ui:resourceRequirements
               - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Resources
               - urn:alm:descriptor:com.tectonic.ui:advanced
+          - path: allowedGroups
+            displayName: Allowed Groups
+            description: >-
+              OpenShift groups allowed to access the application. Enforced by
+              the OAuth proxy. Defaults to ["cluster-admins"].
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+              - urn:alm:descriptor:com.tectonic.ui:fieldGroup:Authentication
         statusDescriptors:
           - path: phase
             displayName: Phase

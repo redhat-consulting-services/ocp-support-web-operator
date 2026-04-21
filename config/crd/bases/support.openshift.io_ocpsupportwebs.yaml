@@ -50,6 +50,14 @@ spec:
                     Application container image. If not set, the operator uses the
                     RELATED_IMAGE_APP environment variable from the operator deployment.
                   type: string
+                agentImage:
+                  description: >-
+                    Container image for ACM remote gather agents deployed to
+                    managed clusters. Defaults to the application image if not set.
+                    For disconnected environments with separate mirrors per cluster,
+                    you can also override this per managed cluster using the
+                    ocp-support-web/agent-image annotation on the ManagedCluster resource.
+                  type: string
                 oauthProxyImage:
                   description: >-
                     OpenShift OAuth proxy sidecar image. Defaults to

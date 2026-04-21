@@ -10,6 +10,9 @@ type OCPSupportWebSpec struct {
 	Image string `json:"image,omitempty"`
 
 	// +optional
+	AgentImage string `json:"agentImage,omitempty"`
+
+	// +optional
 	OAuthProxyImage string `json:"oauthProxyImage,omitempty"`
 
 	// +optional
