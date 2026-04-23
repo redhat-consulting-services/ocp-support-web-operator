@@ -24,6 +24,17 @@ metadata:
               }
             }
           }
+        },
+        {
+          "apiVersion": "support.openshift.io/v1alpha1",
+          "kind": "SupportGather",
+          "metadata": {
+            "name": "example-gather"
+          },
+          "spec": {
+            "gatherTypes": ["all"],
+            "anonymize": false
+          }
         }
       ]
     capabilities: Full Lifecycle
@@ -174,6 +185,15 @@ spec:
               verbs: ["get", "update", "patch"]
             - apiGroups: ["support.openshift.io"]
               resources: ["ocpsupportwebs/finalizers"]
+              verbs: ["update"]
+            - apiGroups: ["support.openshift.io"]
+              resources: ["supportgathers"]
+              verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+            - apiGroups: ["support.openshift.io"]
+              resources: ["supportgathers/status"]
+              verbs: ["get", "update", "patch"]
+            - apiGroups: ["support.openshift.io"]
+              resources: ["supportgathers/finalizers"]
               verbs: ["update"]
             - apiGroups: [""]
               resources: ["serviceaccounts", "services", "secrets", "configmaps"]
@@ -346,6 +366,47 @@ spec:
           - path: conditions
             displayName: Conditions
             description: Deployment conditions.
+            x-descriptors:
+              - urn:alm:descriptor:io.kubernetes.conditions
+      - name: supportgathers.support.openshift.io
+        version: v1alpha1
+        kind: SupportGather
+        displayName: Support Gather
+        description: >-
+          Triggers a must-gather operation via the OCP Support Web backend.
+          Optionally uploads the resulting archive to a Red Hat support case.
+        specDescriptors:
+          - path: gatherTypes
+            displayName: Gather Types
+            description: >-
+              Which must-gather types to run. Use ["all"] for all detected
+              operators, or specify individual types like ["virtualization", "odf"].
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+          - path: anonymize
+            displayName: Anonymize
+            description: Enable data anonymization in the gathered archive.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:booleanSwitch
+          - path: upload.caseID
+            displayName: Case ID
+            description: Red Hat support case number for automatic upload.
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+        statusDescriptors:
+          - path: phase
+            displayName: Phase
+            description: "Current state: Pending, Gathering, Uploading, Complete, Failed."
+            x-descriptors:
+              - urn:alm:descriptor:io.kubernetes.phase
+          - path: progress
+            displayName: Progress
+            description: Gather completion percentage (0-100).
+            x-descriptors:
+              - urn:alm:descriptor:com.tectonic.ui:text
+          - path: conditions
+            displayName: Conditions
+            description: Detailed status conditions.
             x-descriptors:
               - urn:alm:descriptor:io.kubernetes.conditions
 

@@ -91,6 +91,90 @@ The `URL` column shows the route where the application is accessible.
 | `spec.oauthProxyResources` | OAuth proxy resource requirements | 10m CPU / 32Mi-64Mi memory |
 | `spec.allowedGroups` | OpenShift groups allowed to access the app | `["cluster-admins"]` |
 
+## SupportGather CRD
+
+The `SupportGather` custom resource lets you trigger must-gather operations declaratively via YAML. The operator watches for these resources and drives the gather through the OCP Support Web backend.
+
+### Gather all detected operators
+
+```yaml
+apiVersion: support.openshift.io/v1alpha1
+kind: SupportGather
+metadata:
+  name: full-gather
+  namespace: ocp-support-web
+spec:
+  gatherTypes: ["all"]
+```
+
+### Targeted gather for specific operators
+
+```yaml
+apiVersion: support.openshift.io/v1alpha1
+kind: SupportGather
+metadata:
+  name: cnv-odf-gather
+  namespace: ocp-support-web
+spec:
+  gatherTypes: ["virtualization", "odf"]
+  anonymize: true
+  since: "24h"
+```
+
+### Namespace-scoped custom gather
+
+```yaml
+apiVersion: support.openshift.io/v1alpha1
+kind: SupportGather
+metadata:
+  name: custom-gather
+  namespace: ocp-support-web
+spec:
+  namespaces: ["openshift-cnv", "openshift-storage"]
+  resourceTypes: ["pods", "events", "configmaps"]
+  includeLogs: true
+```
+
+### Gather with automatic upload to Red Hat
+
+```yaml
+apiVersion: support.openshift.io/v1alpha1
+kind: SupportGather
+metadata:
+  name: case-upload
+  namespace: ocp-support-web
+spec:
+  gatherTypes: ["all"]
+  upload:
+    caseID: "03291543"
+    secretRef:
+      name: rh-upload-creds
+```
+
+The upload secret must contain `username` and `password` keys for Red Hat's SFTP server (`sftp.access.redhat.com`). Set `upload.internalUser: true` to route uploads to the internal Red Hat path (`/case-mgmt/`) instead of the external path (`/incoming/`).
+
+### SupportGather Spec Reference
+
+| Field | Description | Default |
+|-------|-------------|---------|
+| `spec.gatherTypes` | Operator profiles to gather (`["all"]`, `["virtualization", "odf"]`, etc.) | `["all"]` |
+| `spec.namespaces` | Limit gather to specific namespaces (custom gather mode) | — |
+| `spec.resourceTypes` | Resource types to collect in custom gather mode | — |
+| `spec.includeLogs` | Collect pod logs in custom gather mode | — |
+| `spec.anonymize` | Anonymize IPs, MACs, domains, secrets in the archive | `false` |
+| `spec.since` | Time window for log collection (`"6h"`, `"24h"`, `"48h"`) | — |
+| `spec.upload.caseID` | Red Hat support case number for automatic upload | — |
+| `spec.upload.secretRef.name` | Secret with SFTP credentials (`username`/`password` keys) | — |
+| `spec.upload.internalUser` | Use internal Red Hat upload path | `false` |
+
+### Check status
+
+```bash
+oc get supportgathers
+```
+
+The output shows Phase, Progress, and Age columns. Phases progress through: Pending, Gathering, Uploading (if upload configured), Complete, or Failed.
+
 ## Disconnected / Air-Gapped Environments
 
 Container images are configurable in the CR spec:
@@ -137,7 +221,7 @@ make undeploy        # Remove from cluster
 
 ```
 cmd/main.go                          Entry point
-api/v1alpha1/                        CRD types (OCPSupportWeb)
+api/v1alpha1/                        CRD types (OCPSupportWeb, SupportGather)
 internal/controller/                 Reconciliation logic
 config/crd/bases/                    CRD YAML
 config/rbac/                         RBAC for the operator itself

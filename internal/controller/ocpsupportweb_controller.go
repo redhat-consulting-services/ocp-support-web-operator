@@ -139,6 +139,10 @@ func (r *OCPSupportWebReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		return ctrl.Result{}, r.setPhase(ctx, instance, "Failed", fmt.Sprintf("MonitoringRoleBinding: %v", err))
 	}
 
+	if err := r.reconcileViewerRBAC(ctx, instance); err != nil {
+		return ctrl.Result{}, r.setPhase(ctx, instance, "Failed", fmt.Sprintf("ViewerRBAC: %v", err))
+	}
+
 	if err := r.reconcileAuthConfigMap(ctx, instance, ns); err != nil {
 		return ctrl.Result{}, r.setPhase(ctx, instance, "Failed", fmt.Sprintf("Auth ConfigMap: %v", err))
 	}
@@ -151,8 +155,16 @@ func (r *OCPSupportWebReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 		return ctrl.Result{}, r.setPhase(ctx, instance, "Failed", fmt.Sprintf("Cookie Secret: %v", err))
 	}
 
+	if err := r.reconcileSFTPKnownHosts(ctx, instance, ns); err != nil {
+		return ctrl.Result{}, r.setPhase(ctx, instance, "Failed", fmt.Sprintf("SFTP Known Hosts: %v", err))
+	}
+
 	if err := r.reconcileService(ctx, instance, ns); err != nil {
 		return ctrl.Result{}, r.setPhase(ctx, instance, "Failed", fmt.Sprintf("Service: %v", err))
+	}
+
+	if err := r.reconcileAPIService(ctx, instance, ns); err != nil {
+		return ctrl.Result{}, r.setPhase(ctx, instance, "Failed", fmt.Sprintf("API Service: %v", err))
 	}
 
 	if err := r.reconcileAppMetrics(ctx, instance, ns); err != nil {
@@ -331,88 +343,20 @@ func (r *OCPSupportWebReconciler) reconcileClusterRoleBinding(ctx context.Contex
 
 func appClusterRoleRules() []rbacv1.PolicyRule {
 	return []rbacv1.PolicyRule{
-		// Core v1 — cluster-scoped read
-		{APIGroups: []string{""}, Resources: []string{"namespaces", "nodes", "persistentvolumes", "componentstatuses"}, Verbs: []string{"get", "list"}},
-		// Core v1 — pods (create/delete for debug pods, log, exec)
-		{APIGroups: []string{""}, Resources: []string{"pods"}, Verbs: []string{"get", "list", "create", "delete"}},
-		{APIGroups: []string{""}, Resources: []string{"pods/log"}, Verbs: []string{"get"}},
+		// Read-only access to all resources across all API groups (must-gather diagnostics)
+		{APIGroups: []string{"*"}, Resources: []string{"*"}, Verbs: []string{"get", "list"}},
+		// Pods — create/delete for node debug pods
+		{APIGroups: []string{""}, Resources: []string{"pods"}, Verbs: []string{"create", "delete"}},
 		{APIGroups: []string{""}, Resources: []string{"pods/exec"}, Verbs: []string{"create"}},
 		{APIGroups: []string{""}, Resources: []string{"pods/proxy"}, Verbs: []string{"get", "create"}},
-		// Core v1 — namespaced read
-		{APIGroups: []string{""}, Resources: []string{"services", "configmaps", "secrets", "events", "serviceaccounts", "persistentvolumeclaims", "replicationcontrollers", "resourcequotas", "limitranges", "endpoints"}, Verbs: []string{"get", "list"}},
-		// Apps
-		{APIGroups: []string{"apps"}, Resources: []string{"deployments", "daemonsets", "statefulsets", "replicasets"}, Verbs: []string{"get", "list"}},
-		// Batch
-		{APIGroups: []string{"batch"}, Resources: []string{"jobs", "cronjobs"}, Verbs: []string{"get", "list"}},
-		// RBAC
-		{APIGroups: []string{"rbac.authorization.k8s.io"}, Resources: []string{"clusterroles", "clusterrolebindings", "roles", "rolebindings"}, Verbs: []string{"get", "list"}},
-		// Storage
-		{APIGroups: []string{"storage.k8s.io"}, Resources: []string{"storageclasses", "volumeattachments", "csidrivers", "csinodes"}, Verbs: []string{"get", "list"}},
-		// Networking
-		{APIGroups: []string{"networking.k8s.io"}, Resources: []string{"ingresses", "networkpolicies", "ingressclasses"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"discovery.k8s.io"}, Resources: []string{"endpointslices"}, Verbs: []string{"get", "list"}},
-		// Policy + Autoscaling
-		{APIGroups: []string{"policy"}, Resources: []string{"poddisruptionbudgets"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"autoscaling"}, Resources: []string{"horizontalpodautoscalers"}, Verbs: []string{"get", "list"}},
-		// Metrics
-		{APIGroups: []string{"metrics.k8s.io"}, Resources: []string{"nodes", "pods"}, Verbs: []string{"get", "list"}},
-		// OpenShift config
-		{APIGroups: []string{"config.openshift.io"}, Resources: []string{"clusterversions", "clusteroperators", "infrastructures", "networks", "oauths", "proxies", "schedulers", "ingresses", "apiservers", "featuregates", "dnses", "builds", "images", "operatorhubs", "projects"}, Verbs: []string{"get", "list"}},
-		// Routes + Images
-		{APIGroups: []string{"route.openshift.io"}, Resources: []string{"routes"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"image.openshift.io"}, Resources: []string{"images", "imagestreamtags"}, Verbs: []string{"get", "list"}},
-		// Machine management
-		{APIGroups: []string{"machineconfiguration.openshift.io"}, Resources: []string{"machineconfigs", "machineconfigpools", "containerruntimeconfigs", "kubeletconfigs"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"machine.openshift.io"}, Resources: []string{"machines", "machinesets", "machinehealthchecks"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"autoscaling.openshift.io"}, Resources: []string{"machineautoscalers", "clusterautoscalers"}, Verbs: []string{"get", "list"}},
-		// OpenShift operators
-		{APIGroups: []string{"operator.openshift.io"}, Resources: []string{"kubeapiservers", "kubecontrollermanagers", "kubeschedulers", "openshiftapiservers", "authentications", "consoles", "dnses", "etcds", "networks", "storages", "ingresscontrollers", "imagecontentsourcepolicies"}, Verbs: []string{"get", "list"}},
-		// OpenShift networking
-		{APIGroups: []string{"network.openshift.io"}, Resources: []string{"clusternetworks", "hostsubnets", "netnamespaces"}, Verbs: []string{"get", "list"}},
-		// Security + Image Registry
-		{APIGroups: []string{"security.openshift.io"}, Resources: []string{"securitycontextconstraints"}, Verbs: []string{"get", "list"}},
 		// Privileged SCC — needed for node debug pods (hostNetwork, hostPID, hostPath)
 		{APIGroups: []string{"security.openshift.io"}, Resources: []string{"securitycontextconstraints"}, ResourceNames: []string{"privileged"}, Verbs: []string{"use"}},
-		{APIGroups: []string{"imageregistry.operator.openshift.io"}, Resources: []string{"configs"}, Verbs: []string{"get", "list"}},
-		// Tuned
-		{APIGroups: []string{"tuned.openshift.io"}, Resources: []string{"tuneds", "profiles"}, Verbs: []string{"get", "list"}},
-		// Admission + API registration
-		{APIGroups: []string{"admissionregistration.k8s.io"}, Resources: []string{"validatingwebhookconfigurations", "mutatingwebhookconfigurations"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"apiregistration.k8s.io"}, Resources: []string{"apiservices"}, Verbs: []string{"get", "list"}},
-		// Scheduling + Certificates
-		{APIGroups: []string{"scheduling.k8s.io"}, Resources: []string{"priorityclasses"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"certificates.k8s.io"}, Resources: []string{"certificatesigningrequests"}, Verbs: []string{"get", "list"}},
-		// OLM
-		{APIGroups: []string{"operators.coreos.com"}, Resources: []string{"clusterserviceversions", "catalogsources", "installplans", "subscriptions", "operatorgroups"}, Verbs: []string{"get", "list"}},
-		// Monitoring
-		{APIGroups: []string{"monitoring.coreos.com"}, Resources: []string{"prometheusrules", "servicemonitors", "alertmanagerconfigs", "prometheuses"}, Verbs: []string{"get", "list"}},
-		// NMState
-		{APIGroups: []string{"nmstate.io"}, Resources: []string{"nodenetworkstates"}, Verbs: []string{"get", "list"}},
 		// OCS/ODF — patch needed for enabling ceph toolbox
-		{APIGroups: []string{"ocs.openshift.io"}, Resources: []string{"storageclusters"}, Verbs: []string{"get", "list", "patch"}},
-		// ACM
-		{APIGroups: []string{"cluster.open-cluster-management.io"}, Resources: []string{"managedclusters"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"work.open-cluster-management.io"}, Resources: []string{"manifestworks"}, Verbs: []string{"get", "create", "update", "delete"}},
-		{APIGroups: []string{"operator.open-cluster-management.io"}, Resources: []string{"multiclusterhubs"}, Verbs: []string{"get", "list"}},
-		// ArgoCD
-		{APIGroups: []string{"argoproj.io"}, Resources: []string{"applications", "argocds"}, Verbs: []string{"get", "list", "delete"}},
-		// Operator detection CRDs — list needed because detection uses list API calls
-		{APIGroups: []string{"hco.kubevirt.io"}, Resources: []string{"hyperconvergeds"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"kubevirt.io"}, Resources: []string{"virtualmachines", "virtualmachineinstances"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"logging.openshift.io"}, Resources: []string{"clusterloggings"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"maistra.io"}, Resources: []string{"servicemeshcontrolplanes"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"compliance.openshift.io"}, Resources: []string{"compliancescans"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"migration.openshift.io"}, Resources: []string{"migrationcontrollers"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"operator.knative.dev"}, Resources: []string{"knativeservings"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"multicluster.openshift.io"}, Resources: []string{"multiclusterengines"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"flows.netobserv.io"}, Resources: []string{"flowcollectors"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"local.storage.openshift.io"}, Resources: []string{"localvolumes"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"kataconfiguration.openshift.io"}, Resources: []string{"kataconfigs"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"remediation.medik8s.io"}, Resources: []string{"nodehealthchecks"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"nodetopology.openshift.io"}, Resources: []string{"numaresourcesschedulers"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"ptp.openshift.io"}, Resources: []string{"ptpconfigs"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"secrets-store.csi.x-k8s.io"}, Resources: []string{"secretproviderclasses"}, Verbs: []string{"get", "list"}},
-		{APIGroups: []string{"lvm.topolvm.io"}, Resources: []string{"lvmclusters"}, Verbs: []string{"get", "list"}},
+		{APIGroups: []string{"ocs.openshift.io"}, Resources: []string{"storageclusters"}, Verbs: []string{"patch"}},
+		// ACM — ManifestWork lifecycle for agent deployment
+		{APIGroups: []string{"work.open-cluster-management.io"}, Resources: []string{"manifestworks"}, Verbs: []string{"create", "update", "delete"}},
+		// ArgoCD — delete needed for app management
+		{APIGroups: []string{"argoproj.io"}, Resources: []string{"applications", "argocds"}, Verbs: []string{"delete"}},
 	}
 }
 
@@ -453,6 +397,81 @@ func (r *OCPSupportWebReconciler) reconcileMonitoringRoleBinding(ctx context.Con
 	return r.Update(ctx, existing)
 }
 
+func (r *OCPSupportWebReconciler) reconcileViewerRBAC(ctx context.Context, owner *supportv1alpha1.OCPSupportWeb) error {
+	crName := appName + "-viewer"
+
+	cr := &rbacv1.ClusterRole{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   crName,
+			Labels: labels(),
+		},
+		Rules: []rbacv1.PolicyRule{
+			{
+				APIGroups: []string{"support.openshift.io"},
+				Resources: []string{"ocpsupportwebs"},
+				Verbs:     []string{"get", "list"},
+			},
+		},
+	}
+
+	existingCR := &rbacv1.ClusterRole{}
+	err := r.Get(ctx, types.NamespacedName{Name: crName}, existingCR)
+	if errors.IsNotFound(err) {
+		if err := r.Create(ctx, cr); err != nil {
+			return err
+		}
+	} else if err != nil {
+		return err
+	} else {
+		existingCR.Rules = cr.Rules
+		existingCR.Labels = labels()
+		if err := r.Update(ctx, existingCR); err != nil {
+			return err
+		}
+	}
+
+	allowedGroups := owner.Spec.AllowedGroups
+	if len(allowedGroups) == 0 {
+		allowedGroups = []string{"cluster-admins"}
+	}
+
+	crbName := appName + "-viewer"
+	subjects := make([]rbacv1.Subject, len(allowedGroups))
+	for i, g := range allowedGroups {
+		subjects[i] = rbacv1.Subject{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "Group",
+			Name:     g,
+		}
+	}
+
+	crb := &rbacv1.ClusterRoleBinding{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:   crbName,
+			Labels: labels(),
+		},
+		RoleRef: rbacv1.RoleRef{
+			APIGroup: "rbac.authorization.k8s.io",
+			Kind:     "ClusterRole",
+			Name:     crName,
+		},
+		Subjects: subjects,
+	}
+
+	existingCRB := &rbacv1.ClusterRoleBinding{}
+	err = r.Get(ctx, types.NamespacedName{Name: crbName}, existingCRB)
+	if errors.IsNotFound(err) {
+		return r.Create(ctx, crb)
+	}
+	if err != nil {
+		return err
+	}
+
+	existingCRB.Subjects = crb.Subjects
+	existingCRB.Labels = labels()
+	return r.Update(ctx, existingCRB)
+}
+
 func (r *OCPSupportWebReconciler) cleanupClusterResources(ctx context.Context, instance *supportv1alpha1.OCPSupportWeb) error {
 	logger := log.FromContext(ctx)
 
@@ -487,6 +506,29 @@ func (r *OCPSupportWebReconciler) cleanupClusterResources(ctx context.Context, i
 		}
 	} else {
 		if err := r.Delete(ctx, monCRB); err != nil {
+			return err
+		}
+	}
+
+	viewerCRBName := appName + "-viewer"
+	viewerCRB := &rbacv1.ClusterRoleBinding{}
+	if err := r.Get(ctx, types.NamespacedName{Name: viewerCRBName}, viewerCRB); err != nil {
+		if !errors.IsNotFound(err) {
+			return err
+		}
+	} else {
+		if err := r.Delete(ctx, viewerCRB); err != nil {
+			return err
+		}
+	}
+
+	viewerCR := &rbacv1.ClusterRole{}
+	if err := r.Get(ctx, types.NamespacedName{Name: viewerCRBName}, viewerCR); err != nil {
+		if !errors.IsNotFound(err) {
+			return err
+		}
+	} else {
+		if err := r.Delete(ctx, viewerCR); err != nil {
 			return err
 		}
 	}
@@ -643,6 +685,34 @@ func (r *OCPSupportWebReconciler) reconcileCookieSecret(ctx context.Context, own
 	return r.Create(ctx, secret)
 }
 
+func (r *OCPSupportWebReconciler) reconcileSFTPKnownHosts(ctx context.Context, owner *supportv1alpha1.OCPSupportWeb, ns string) error {
+	secretName := appName + "-sftp-known-hosts"
+	existing := &corev1.Secret{}
+	err := r.Get(ctx, types.NamespacedName{Name: secretName, Namespace: ns}, existing)
+	if err == nil {
+		return nil
+	}
+	if !errors.IsNotFound(err) {
+		return err
+	}
+
+	secret := &corev1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      secretName,
+			Namespace: ns,
+			Labels:    labels(),
+		},
+		Type: corev1.SecretTypeOpaque,
+		Data: map[string][]byte{
+			"known-hosts": []byte("sftp.access.redhat.com ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCFQ3l2YVJ0r4MNzAZmTV2kg7rPi4WPeJNcNubvOVA4WwBV6cRsYFkIqtB1unBzTXoZHd7+adtZTgUrJ2BExImyLUQaLBu3KKo4CgGeiZMo8dfDvE2tIe/GwGtyho57TtwJVVUCljvFBvbz8+D6VunsQ6kNU53t8qCaBQNm61twTkdAHP9IESJbC7wWJqjmhmOMTav1OKQDtLEsSDc4I+s+h41LvUfw1lA7RSl9eR13TK9ySpN/uW5nBq7nUNWW5OBc3UbvpdQpDXvdUDbW0rQ2EEWvLkKubhk+RSeY/lH8peOeHYQ5ARPYfFDpo5KsKDDdKa9DfnK8N8APgtzM0r+l\n"),
+		},
+	}
+	if err := controllerutil.SetControllerReference(owner, secret, r.Scheme); err != nil {
+		return err
+	}
+	return r.Create(ctx, secret)
+}
+
 func (r *OCPSupportWebReconciler) reconcileService(ctx context.Context, owner *supportv1alpha1.OCPSupportWeb, ns string) error {
 	svc := &corev1.Service{
 		ObjectMeta: metav1.ObjectMeta{
@@ -678,6 +748,51 @@ func (r *OCPSupportWebReconciler) reconcileService(ctx context.Context, owner *s
 		return err
 	}
 
+	existing.Spec.Ports = svc.Spec.Ports
+	existing.Spec.Selector = svc.Spec.Selector
+	if existing.Annotations == nil {
+		existing.Annotations = map[string]string{}
+	}
+	for k, v := range svc.Annotations {
+		existing.Annotations[k] = v
+	}
+	return r.Update(ctx, existing)
+}
+
+func (r *OCPSupportWebReconciler) reconcileAPIService(ctx context.Context, owner *supportv1alpha1.OCPSupportWeb, ns string) error {
+	apiSvcName := appName + "-api"
+	svc := &corev1.Service{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      apiSvcName,
+			Namespace: ns,
+			Labels:    labels(),
+			Annotations: map[string]string{
+				"service.beta.openshift.io/serving-cert-secret-name": appName + "-api-tls",
+			},
+		},
+		Spec: corev1.ServiceSpec{
+			Selector: labels(),
+			Ports: []corev1.ServicePort{
+				{
+					Name:       "https",
+					Port:       9443,
+					TargetPort: intstr.FromInt(9443),
+					Protocol:   corev1.ProtocolTCP,
+				},
+			},
+		},
+	}
+	if err := controllerutil.SetControllerReference(owner, svc, r.Scheme); err != nil {
+		return err
+	}
+	existing := &corev1.Service{}
+	err := r.Get(ctx, types.NamespacedName{Name: apiSvcName, Namespace: ns}, existing)
+	if errors.IsNotFound(err) {
+		return r.Create(ctx, svc)
+	}
+	if err != nil {
+		return err
+	}
 	existing.Spec.Ports = svc.Spec.Ports
 	existing.Spec.Selector = svc.Spec.Selector
 	if existing.Annotations == nil {
@@ -792,18 +907,104 @@ func (r *OCPSupportWebReconciler) reconcileDeployment(ctx context.Context, owner
 		appResources = *owner.Spec.Resources
 	}
 
-	proxyResources := corev1.ResourceRequirements{
-		Requests: corev1.ResourceList{
-			corev1.ResourceCPU:    resource.MustParse("10m"),
-			corev1.ResourceMemory: resource.MustParse("32Mi"),
-		},
-		Limits: corev1.ResourceList{
-			corev1.ResourceMemory: resource.MustParse("64Mi"),
-		},
+	allowedGroups := owner.Spec.AllowedGroups
+	if len(allowedGroups) == 0 {
+		allowedGroups = []string{"cluster-admins"}
 	}
-	if owner.Spec.OAuthProxyResources != nil {
-		proxyResources = *owner.Spec.OAuthProxyResources
+
+	appEnv := []corev1.EnvVar{
+		{Name: "CLUSTER_DOMAIN", Value: clusterDomain},
+		{Name: "AGENT_IMAGE", Value: agentImage},
+		{Name: "TLS_LISTEN_ADDR", Value: "0.0.0.0:9443"},
+		{Name: "TLS_CERT_FILE", Value: "/var/serving-cert/api/tls.crt"},
+		{Name: "TLS_KEY_FILE", Value: "/var/serving-cert/api/tls.key"},
+		{Name: "POD_NAMESPACE", ValueFrom: &corev1.EnvVarSource{
+			FieldRef: &corev1.ObjectFieldSelector{FieldPath: "metadata.namespace"},
+		}},
 	}
+
+	var containers []corev1.Container
+	var volumes []corev1.Volume
+	appPorts := []corev1.ContainerPort{
+		{Name: "https", ContainerPort: 9443},
+		{Name: "metrics", ContainerPort: 8081},
+	}
+
+	if owner.Spec.ConsolePlugin {
+		appEnv = append(appEnv,
+			corev1.EnvVar{Name: "CONSOLE_PLUGIN", Value: "true"},
+		)
+		if len(owner.Spec.AllowedGroups) > 0 {
+			appEnv = append(appEnv,
+				corev1.EnvVar{Name: "ALLOWED_GROUPS", Value: strings.Join(owner.Spec.AllowedGroups, ",")},
+			)
+		}
+	} else {
+		appEnv = append(appEnv, corev1.EnvVar{Name: "LISTEN_ADDR", Value: "0.0.0.0:8080"})
+		appPorts = append([]corev1.ContainerPort{{Name: "http", ContainerPort: 8080}}, appPorts...)
+
+		proxyResources := corev1.ResourceRequirements{
+			Requests: corev1.ResourceList{
+				corev1.ResourceCPU:    resource.MustParse("10m"),
+				corev1.ResourceMemory: resource.MustParse("32Mi"),
+			},
+			Limits: corev1.ResourceList{
+				corev1.ResourceMemory: resource.MustParse("64Mi"),
+			},
+		}
+		if owner.Spec.OAuthProxyResources != nil {
+			proxyResources = *owner.Spec.OAuthProxyResources
+		}
+
+		containers = append(containers, corev1.Container{
+			Name:            "oauth-proxy",
+			Image:           oauthProxyImage,
+			ImagePullPolicy: corev1.PullAlways,
+			Args:            r.oauthProxyArgs(owner),
+			Ports: []corev1.ContainerPort{
+				{Name: "proxy", ContainerPort: 8443},
+			},
+			VolumeMounts: []corev1.VolumeMount{
+				{Name: "tls", MountPath: "/etc/tls/private", ReadOnly: true},
+				{Name: "cookie-secret", MountPath: "/etc/oauth/cookie-secret", ReadOnly: true},
+			},
+			Resources: proxyResources,
+			SecurityContext: &corev1.SecurityContext{
+				AllowPrivilegeEscalation: boolPtr(false),
+				Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
+			},
+		})
+		volumes = append(volumes,
+			corev1.Volume{
+				Name:         "tls",
+				VolumeSource: corev1.VolumeSource{Secret: &corev1.SecretVolumeSource{SecretName: appName + "-tls"}},
+			},
+			corev1.Volume{
+				Name:         "cookie-secret",
+				VolumeSource: corev1.VolumeSource{Secret: &corev1.SecretVolumeSource{SecretName: appName + "-cookie"}},
+			},
+		)
+	}
+
+	containers = append(containers, corev1.Container{
+		Name:            appName,
+		Image:           appImage,
+		ImagePullPolicy: corev1.PullAlways,
+		Env:             appEnv,
+		Ports:           appPorts,
+		VolumeMounts: []corev1.VolumeMount{
+			{Name: "api-tls", MountPath: "/var/serving-cert/api", ReadOnly: true},
+		},
+		Resources: appResources,
+		SecurityContext: &corev1.SecurityContext{
+			AllowPrivilegeEscalation: boolPtr(false),
+			Capabilities:             &corev1.Capabilities{Drop: []corev1.Capability{"ALL"}},
+		},
+	})
+	volumes = append(volumes, corev1.Volume{
+		Name:         "api-tls",
+		VolumeSource: corev1.VolumeSource{Secret: &corev1.SecretVolumeSource{SecretName: appName + "-api-tls"}},
+	})
 
 	dep := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
@@ -828,66 +1029,8 @@ func (r *OCPSupportWebReconciler) reconcileDeployment(ctx context.Context, owner
 							Type: corev1.SeccompProfileTypeRuntimeDefault,
 						},
 					},
-					Containers: []corev1.Container{
-						{
-							Name:            "oauth-proxy",
-							Image:           oauthProxyImage,
-							ImagePullPolicy: corev1.PullAlways,
-							Args: r.oauthProxyArgs(owner),
-							Ports: []corev1.ContainerPort{
-								{Name: "proxy", ContainerPort: 8443},
-							},
-							VolumeMounts: []corev1.VolumeMount{
-								{Name: "tls", MountPath: "/etc/tls/private", ReadOnly: true},
-								{Name: "cookie-secret", MountPath: "/etc/oauth/cookie-secret", ReadOnly: true},
-							},
-							Resources: proxyResources,
-							SecurityContext: &corev1.SecurityContext{
-								AllowPrivilegeEscalation: boolPtr(false),
-								Capabilities: &corev1.Capabilities{
-									Drop: []corev1.Capability{"ALL"},
-								},
-							},
-						},
-						{
-							Name:            appName,
-							Image:           appImage,
-							ImagePullPolicy: corev1.PullAlways,
-							Env: []corev1.EnvVar{
-								{Name: "CLUSTER_DOMAIN", Value: clusterDomain},
-								{Name: "AGENT_IMAGE", Value: agentImage},
-							},
-							Ports: []corev1.ContainerPort{
-								{Name: "http", ContainerPort: 8080},
-								{Name: "metrics", ContainerPort: 8081},
-							},
-							Resources: appResources,
-							SecurityContext: &corev1.SecurityContext{
-								AllowPrivilegeEscalation: boolPtr(false),
-								Capabilities: &corev1.Capabilities{
-									Drop: []corev1.Capability{"ALL"},
-								},
-							},
-						},
-					},
-					Volumes: []corev1.Volume{
-						{
-							Name: "tls",
-							VolumeSource: corev1.VolumeSource{
-								Secret: &corev1.SecretVolumeSource{
-									SecretName: appName + "-tls",
-								},
-							},
-						},
-						{
-							Name: "cookie-secret",
-							VolumeSource: corev1.VolumeSource{
-								Secret: &corev1.SecretVolumeSource{
-									SecretName: appName + "-cookie",
-								},
-							},
-						},
-						},
+					Containers: containers,
+					Volumes:    volumes,
 				},
 			},
 		},

@@ -27,8 +27,14 @@ type OCPSupportWebSpec struct {
 	// +optional
 	OAuthProxyResources *corev1.ResourceRequirements `json:"oauthProxyResources,omitempty"`
 
+	// ConsolePlugin enables OpenShift Console plugin mode. When true, the app
+	// runs TLS-only with bearer token auth and no OAuth proxy sidecar.
+	// +optional
+	ConsolePlugin bool `json:"consolePlugin,omitempty"`
+
 	// AllowedGroups is a list of OpenShift groups allowed to access the application.
-	// These are enforced by the OAuth proxy. If empty, defaults to ["cluster-admins"].
+	// These are enforced by the OAuth proxy (standalone) or bearer token middleware (console plugin).
+	// If empty, defaults to ["cluster-admins"].
 	// +optional
 	AllowedGroups []string `json:"allowedGroups,omitempty"`
 }

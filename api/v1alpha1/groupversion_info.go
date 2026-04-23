@@ -1,3 +1,5 @@
+// +groupName=support.openshift.io
+
 package v1alpha1
 
 import (
